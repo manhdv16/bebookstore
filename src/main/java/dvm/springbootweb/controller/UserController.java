@@ -47,10 +47,6 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public static User currentUser = null;
-    private static String username= null;
-    private static String usernameForSetPass= null;
-
     @Autowired
     private JavaMailSender mailSender;
 
@@ -102,20 +98,21 @@ public class UserController {
         String jwt = jwtTokenProvider.generateToken(customUserDetail);
         List<String> listRoles = customUserDetail.getAuthorities().stream()
                 .map(item -> item.getAuthority()).collect(Collectors.toList());
-        currentUser = userService.findByUserName(request.getUserName());
-        username = currentUser.getUserName();
         return ResponseEntity.ok(new JwtResponse(jwt, customUserDetail.getUsername(), customUserDetail.getEmail(), listRoles));
     }
     @GetMapping("/viewInfor")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
-    public ResponseEntity<?> getInfor() {
-        return ResponseEntity.ok(userService.findByUserName(username));
+    public ResponseEntity<?> getInfor(@RequestHeader("Authorization") String token) {
+        String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
+        User user = userService.findByUserName(userName);
+        return ResponseEntity.ok(user);
     }
     @PutMapping("/updateInfor")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
-    public ResponseEntity<?> update(@RequestParam(required = false) String email, @RequestParam(required = false) String phoneNumber,
+    public ResponseEntity<?> update(@RequestHeader("Authorization") String token, @RequestParam(required = false) String email, @RequestParam(required = false) String phoneNumber,
                                     @RequestParam(required = false) String address){
-        User user = currentUser;
+        String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
+        User user = userService.findByUserName(userName);
         if(email != null) user.setEmail(email);
         if(phoneNumber != null) user.setPhoneNumber(phoneNumber);
         if(address != null) user.setAddress(address);
@@ -124,8 +121,9 @@ public class UserController {
     }
     @PostMapping("/changepassword")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
-    public ResponseEntity<?> changePassword(@RequestParam String oldPass, @RequestParam String newPass){
-        User user = currentUser;
+    public ResponseEntity<?> changePassword(@RequestHeader("Authorization") String token, @RequestParam String oldPass, @RequestParam String newPass){
+        String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
+        User user = userService.findByUserName(userName);
         if(passwordEncoder.matches(oldPass, user.getPassword())) {
             String bcreptNewPass = passwordEncoder.encode(newPass);
             user.setPassword(bcreptNewPass);
@@ -140,7 +138,6 @@ public class UserController {
         User user = userService.findByUserName(username);
         if(user == null) return new ResponseEntity<>(new MessageResponse("Username not exists"),HttpStatus.NOT_FOUND);
         if(!email.equals(user.getEmail())) return new ResponseEntity<>(new MessageResponse("Email not exists"), HttpStatus.NOT_FOUND);
-        usernameForSetPass = user.getUserName();
         Random random = new Random();
         int otp = 100000 + random.nextInt(900000);
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
@@ -154,16 +151,16 @@ public class UserController {
         return new ResponseEntity<>(new MessageResponse("OTP sent to " + email), HttpStatus.OK);
     }
     @GetMapping("/verify")
-    public ResponseEntity<?> verifyOTP(@RequestParam String otp){
-        User user = userService.findByUserName(usernameForSetPass);
+    public ResponseEntity<?> verifyOTP(@RequestParam String otp,@RequestParam String username){
+        User user = userService.findByUserName(username);
         if(otp.equals(user.getOtp())){
             return ResponseEntity.ok(new MessageResponse("verified"));
         }
         return new ResponseEntity<>(new MessageResponse("Verification failed, please re-enter"), HttpStatus.NOT_FOUND);
     }
     @PutMapping("/setpassword")
-    public ResponseEntity<?> setPassword(@RequestParam String newPass){
-        User user = userService.findByUserName(usernameForSetPass);
+    public ResponseEntity<?> setPassword(@RequestParam String newPass, @RequestParam String username){
+        User user = userService.findByUserName(username);
         user.setPassword(passwordEncoder.encode(newPass));
         userService.saveOrUpdate(user);
         return ResponseEntity.ok(new MessageResponse("Update password successfully"));

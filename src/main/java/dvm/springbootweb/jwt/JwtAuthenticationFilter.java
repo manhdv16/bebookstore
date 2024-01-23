@@ -22,7 +22,8 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
-        @Autowired
+
+    @Autowired
     private CustomUserDetailService customUserDetailService;
     public static String CURRENT_USERNAME="";
     private String getJwtFromRequest(HttpServletRequest request){
