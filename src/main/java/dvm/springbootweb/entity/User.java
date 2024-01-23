@@ -23,6 +23,7 @@ public class User {
     private Date created;
     private String address;
     private String phoneNumber;
+    private String otp;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "User_Role",joinColumns = @JoinColumn(name = "userId"),
     inverseJoinColumns = @JoinColumn(name = "roleId"))
