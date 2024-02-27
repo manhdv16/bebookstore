@@ -6,6 +6,7 @@ import dvm.springbootweb.repository.CategoryRepository;
 import dvm.springbootweb.service.BookService;
 import dvm.springbootweb.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,10 +14,18 @@ import java.util.Set;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
+
     @Autowired
     private CategoryRepository categoryRepository;
+
     @Autowired
     private BookService bookService;
+
+    @Override
+    public List<Category> findCategories(int limit) {
+        return categoryRepository.findCategories(PageRequest.of(0,3));
+    }
+
     @Override
     public List<Category> findAll() {
         return categoryRepository.findAll();

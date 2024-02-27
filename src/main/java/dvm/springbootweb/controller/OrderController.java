@@ -12,12 +12,18 @@ import dvm.springbootweb.service.CartService;
 import dvm.springbootweb.service.OrderService;
 import dvm.springbootweb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -46,6 +52,18 @@ public class OrderController {
         List<Order> orderList = orderService.getAllOrderByUser(user);
         return ResponseEntity.ok(orderList);
     }
+    @GetMapping("/page-order")
+    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Map<String,Object>> viewPaggingOrder(@RequestParam(required = true) int page){
+        int size = 3;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Order> pageCurrent = orderService.getPagging(pageable);
+        Map<String, Object> data = new HashMap<>();
+        data.put("orders", pageCurrent.getContent());
+        data.put("totalPages", pageCurrent.getTotalPages());
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+
     @GetMapping("/adminOrder")
     @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> viewAdminOrder(@RequestHeader("Authorization") String token) {

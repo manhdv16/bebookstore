@@ -8,6 +8,8 @@ import dvm.springbootweb.repository.OrderRepository;
 import dvm.springbootweb.service.BookService;
 import dvm.springbootweb.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -68,5 +70,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> findAll() {
         return orderRepository.findAll();
+    }
+
+    @Override
+    public Page<Order> getPagging(Pageable pageable) {
+        return orderRepository.findAll(pageable);
     }
 }

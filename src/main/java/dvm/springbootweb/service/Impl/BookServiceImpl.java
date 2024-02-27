@@ -6,6 +6,7 @@ import dvm.springbootweb.repository.BookRepository;
 import dvm.springbootweb.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,8 @@ public class BookServiceImpl implements BookService {
     @Autowired
     private BookRepository bookRepository;
     @Override
-    public List<Book> findAllBooks() {
-        return  bookRepository.findAll();
+    public List<Book> findBooks(int limit) {
+        return  bookRepository.findBooks(PageRequest.of(0,limit));
     }
 
     @Override
@@ -35,6 +36,7 @@ public class BookServiceImpl implements BookService {
     public Page<Book> getPagging(Pageable pageable) {
         return bookRepository.findAll(pageable);
     }
+
 
     @Override
     public void saveOrUpdate(Book book) {

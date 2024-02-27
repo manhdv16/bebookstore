@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface BookService {
-    List<Book> findAllBooks();
+    List<Book> findBooks(int limit);
     Set<Book> findAllByCategoryId(int id);
     Book findByBookId(Integer id);
     Page<Book> getPagging(Pageable pageable);

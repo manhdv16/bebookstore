@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -64,6 +66,7 @@ public class CommentController {
             Comment comment = new Comment();
             comment.setRating(dto.getRating());
             comment.setContent(dto.getContent());
+            comment.setCmtDate(new java.sql.Date(new Date().getTime()));
             comment.setUser(user);
             comment.setBook(d.getBook());
             commentService.save(comment);
