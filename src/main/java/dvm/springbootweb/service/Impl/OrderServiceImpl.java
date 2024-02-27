@@ -74,6 +74,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<Order> getPagging(Pageable pageable) {
-        return orderRepository.findAll(pageable);
+        return orderRepository.findOrders(pageable);
     }
 }
