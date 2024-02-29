@@ -125,6 +125,7 @@ public class BookController {
     }
     @GetMapping("/book/{id}")
     public ResponseEntity<Map<String, Object>> bookDetail(@PathVariable int id){
+        System.out.println("view detail");
         Book book = bookService.findByBookId(id);
         Set<Comment> listCmt = commentService.findAllCommentByBookId(id);
         Map<String, Object> data = new HashMap<>();
