@@ -22,7 +22,9 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart AddToCart(CartDto cartDto, User user) {
         Cart cart =null;
-        cart = cartRepository.findCartByBookId(cartDto.getBookId());
+        if(cartRepository.exitsCartByUerId(user.getUserId())>0){
+            cart = cartRepository.findCartByBookId(cartDto.getBookId());
+        }
         if(cart != null){
             cart.setQuantity(cart.getQuantity()+cartDto.getQuantity());
             cartRepository.save(cart);

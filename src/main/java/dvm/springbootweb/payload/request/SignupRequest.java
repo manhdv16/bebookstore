@@ -17,5 +17,6 @@ public class SignupRequest {
     @DateTimeFormat(pattern = "dd/MM/yyyy")
     private Date created;
     private byte gender;
+    private String address;
     private Set<String> listRoles;
 }

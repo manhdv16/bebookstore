@@ -18,11 +18,11 @@ public class JwtTokenProvider {
     @Value("${dvm.expiration}")
     private int jwtExpiration;
 
-    public String generateToken(CustomUserDetail customUserDetail){
+    public String generateToken(String userName){
         Date date =new Date();
         Date expiration = new Date(date.getTime()+jwtExpiration);
         return Jwts.builder()
-            .setSubject(customUserDetail.getUsername())
+            .setSubject(userName)
             .setIssuedAt(new Date())
             .setExpiration(expiration)
             .signWith(SignatureAlgorithm.HS512,jwtSecret).compact();

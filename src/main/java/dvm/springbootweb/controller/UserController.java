@@ -1,7 +1,5 @@
 package dvm.springbootweb.controller;
 
-import dvm.springbootweb.entity.ERole;
-import dvm.springbootweb.entity.Role;
 import dvm.springbootweb.entity.User;
 import dvm.springbootweb.jwt.JwtTokenProvider;
 import dvm.springbootweb.payload.request.LoginRequest;
@@ -11,6 +9,7 @@ import dvm.springbootweb.payload.response.MessageResponse;
 import dvm.springbootweb.security.CustomUserDetail;
 import dvm.springbootweb.service.RoleService;
 import dvm.springbootweb.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -31,63 +30,30 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("api/v1")
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    private RoleService roleService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JavaMailSender mailSender;
+    private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
+    private final JavaMailSender mailSender;
 
     @Value("$(spring.mail.username)")
     private String fromMail;
-
-    @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody SignupRequest request) {
-        if(userService.existsByUserName(request.getUserName())) return new ResponseEntity<>(new MessageResponse("Username already exists"), HttpStatus.BAD_REQUEST);
-        if(userService.existsByEmail(request.getEmail())) return new ResponseEntity<>(new MessageResponse("Email already exists"), HttpStatus.BAD_REQUEST);
-
-        User user = new User();
-        user.setUserName(request.getUserName());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setEmail(request.getEmail());
-        user.setPhoneNumber(request.getPhoneNumber());
-        user.setAddress(request.getPassword());
-        user.setCreated(new Date());
-        Set<String> strRole = request.getListRoles();
-        Set<Role> listRoles = new HashSet<>();
-        if (strRole == null) {
-            Role userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: role is not found"));
-            listRoles.add(userRole);
-        } else {
-            strRole.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        Role adminRole = roleService.findByRoleName(ERole.ROLE_ADMIN).orElseThrow(() -> new RuntimeException("Error: role is not found"));
-                        listRoles.add(adminRole);
-                    case "manager":
-                        Role managerRole = roleService.findByRoleName(ERole.ROLE_MANAGER).orElseThrow(() -> new RuntimeException("Error: role is not found"));
-                        listRoles.add(managerRole);
-                    case "user":
-                        Role userRole = roleService.findByRoleName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException("Error: role is not found"));
-                        listRoles.add(userRole);
-                }
-            });
+    @PostMapping("/login-by-google")
+    public ResponseEntity<?> user(@RequestBody SignupRequest request){
+        String email = request.getEmail();
+        String username = request.getUserName();
+        User user = null;
+        if(!userService.existsByUserName(username) && !userService.existsByEmail(email)) {
+            user = userService.signUp(request);
+            userService.saveOrUpdate(user);
         }
-        user.setListRoles(listRoles);
-        userService.saveOrUpdate(user);
-        return ResponseEntity.ok(new MessageResponse("User registered successfully"));
+        user = userService.findByUserName(username);
+        String jwt = jwtTokenProvider.generateToken(username);
+        List<String> listRoles = user.getListRoles().stream()
+                .map(item -> item.getRoleName().name()).collect(Collectors.toList());
+        return ResponseEntity.ok(new JwtResponse(jwt, username, email, listRoles));
     }
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest request) {
@@ -95,11 +61,20 @@ public class UserController {
                 new UsernamePasswordAuthenticationToken(request.getUserName(), request.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         CustomUserDetail customUserDetail = (CustomUserDetail) authentication.getPrincipal();
-        String jwt = jwtTokenProvider.generateToken(customUserDetail);
+        String jwt = jwtTokenProvider.generateToken(customUserDetail.getUsername());
         List<String> listRoles = customUserDetail.getAuthorities().stream()
                 .map(item -> item.getAuthority()).collect(Collectors.toList());
         return ResponseEntity.ok(new JwtResponse(jwt, customUserDetail.getUsername(), customUserDetail.getEmail(), listRoles));
     }
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@RequestBody SignupRequest request) {
+        if(userService.existsByUserName(request.getUserName())) return new ResponseEntity<>(new MessageResponse("Username already exists"), HttpStatus.BAD_REQUEST);
+        if(userService.existsByEmail(request.getEmail())) return new ResponseEntity<>(new MessageResponse("Email already exists"), HttpStatus.BAD_REQUEST);
+        User user = userService.signUp(request);
+        userService.saveOrUpdate(user);
+        return ResponseEntity.ok(new MessageResponse("User registered successfully"));
+    }
+
     @GetMapping("/viewInfor")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     public ResponseEntity<?> getInfor(@RequestHeader("Authorization") String token) {
