@@ -19,6 +19,6 @@ public class Category {
     private String categoryName;
     @Column(length = 1000)
     private String description;
-    @OneToMany(mappedBy = "category",cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "category",cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Book> listBooks;
 }

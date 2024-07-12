@@ -15,4 +15,5 @@ public interface BookService {
     Page<Book> getPagging(Pageable pageable);
     void saveOrUpdate(Book book);
     void delete(Integer id);
+    String validateBook(String bookName, String author, String description, double price, int categoryId, int quantity);
 }

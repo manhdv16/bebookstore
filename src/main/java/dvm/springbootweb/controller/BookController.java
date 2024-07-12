@@ -5,10 +5,11 @@ import dvm.springbootweb.entity.Book;
 import dvm.springbootweb.entity.Category;
 import dvm.springbootweb.entity.Comment;
 import dvm.springbootweb.payload.response.MessageResponse;
-import dvm.springbootweb.service.BaseRedisService;
 import dvm.springbootweb.service.BookService;
 import dvm.springbootweb.service.CategoryService;
 import dvm.springbootweb.service.CommentService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,11 +40,12 @@ public class BookController {
 
     @Autowired
     private CloudinaryService cloudinaryService;
+
     @Autowired
     private CommentService commentService;
-
+    private static final Logger LOGGER = LogManager.getLogger(BookController.class);
     @GetMapping("/view-home")
-    public ResponseEntity<Map<String,Object>> getForHome(){
+    public ResponseEntity<?> getForHome(){
         List<Book> books = bookService.findBooks(6);
         List<Category> categories = categoryService.findAll();
         Map<String, Object> data = new HashMap<>();
@@ -52,9 +54,8 @@ public class BookController {
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
     @GetMapping("/pagging")
-    public ResponseEntity<Map<String, Object>> getPagging(@RequestParam(required = true) int page){
+    public ResponseEntity<?> getPagging(@RequestParam(required = true) int page){
         int sizeDefault = 3;
-        System.out.println(page);
         Pageable pageable = PageRequest.of(page,sizeDefault);
         Page<Book> pageBook = bookService.getPagging(pageable);
         Map<String, Object> data = new HashMap<>();
@@ -63,11 +64,15 @@ public class BookController {
         data.put("totalPages",pageBook.getTotalPages());
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
-    @PostMapping("/addBook")
+    @PostMapping("/add-book")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> addBook(@RequestHeader("Authorization") String token, @RequestParam String bookName, @RequestParam String author,
                                      @RequestParam String description, @RequestParam(required = false) MultipartFile image,
                                      @RequestParam double price, @RequestParam int categoryId, @RequestParam int quantity) throws IOException {
+        String message = bookService.validateBook(bookName, author, description, price, categoryId, quantity);
+        if(!"1".equals(message)){
+            return ResponseEntity.badRequest().body(new MessageResponse(message));
+        }
         Book book = new Book();
         book.setBookName(bookName);
         book.setAuthor(author);
@@ -83,8 +88,8 @@ public class BookController {
         return ResponseEntity.ok(new MessageResponse("Book was added successfully!"));
     }
 
-    @PutMapping("/updateBook/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    @PutMapping("/update-book/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
     public ResponseEntity<?> updateBookById(@PathVariable int id, @RequestParam(required = false) String bookName, @RequestParam(required = false) String author,
                                             @RequestParam(required = false) String description, @RequestParam(required = false) MultipartFile image,
                                             @RequestParam(required = false) Double price, @RequestParam(required = false) Integer categoryId, @RequestParam(required = false) Integer quantity ) throws IOException {
@@ -100,33 +105,25 @@ public class BookController {
         return ResponseEntity.ok(new MessageResponse("Updated successfully!"));
     }
 
-    @DeleteMapping("/deleteBook/{id}")
+    @DeleteMapping("/delete-book/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteBookById(@PathVariable int id){
         try{
             bookService.delete(id);
             return ResponseEntity.ok(new MessageResponse("Deleted successfully !"));
         }catch (Exception exception){
+            LOGGER.error("Delete failed with id:"+ id );
             return ResponseEntity.badRequest().body(new MessageResponse("Delete failed"));
         }
 
     }
-    @Autowired
-    private BaseRedisService baseRedisService;
-    @GetMapping("testget")
-    public ResponseEntity<?> getValueFromRedis() {
-        return ResponseEntity.ok(baseRedisService.get("abc"));
-    }
-
-    @GetMapping("testset")
-    public ResponseEntity<?> setValueFromRedis() {
-        baseRedisService.set("abc","ha ha tho dinh");
-        return ResponseEntity.ok("add in redis ok");
-    }
     @GetMapping("/book/{id}")
     public ResponseEntity<Map<String, Object>> bookDetail(@PathVariable int id){
-        System.out.println("view detail");
         Book book = bookService.findByBookId(id);
+        if(book == null){
+            LOGGER.error("Book not found with id: "+ id);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         Set<Comment> listCmt = commentService.findAllCommentByBookId(id);
         Map<String, Object> data = new HashMap<>();
         data.put("book", book);

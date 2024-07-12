@@ -48,5 +48,27 @@ public class BookServiceImpl implements BookService {
         Book book = bookRepository.findById(id).orElseThrow(()->new RuntimeException("No book has id:"+id));
         bookRepository.deleteById(id);
     }
+    @Override
+    public String validateBook(String bookName, String author, String description, double price, int categoryId, int quantity) {
+        if(bookName == null || bookName.isEmpty()){
+            return "Book name is required!";
+        }
+        if(author == null || author.isEmpty()){
+            return "Author is required!";
+        }
+        if(description == null || description.isEmpty()){
+            return "Description is required!";
+        }
+        if(price == 0){
+            return "Price is required!";
+        }
+        if(categoryId == 0){
+            return "Category is required!";
+        }
+        if(quantity == 0){
+            return "Quantity is required!";
+        }
+        return "1";
+    }
 }
 
