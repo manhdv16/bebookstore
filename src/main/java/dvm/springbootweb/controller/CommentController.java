@@ -11,6 +11,7 @@ import dvm.springbootweb.service.CommentService;
 import dvm.springbootweb.service.OrderDetailService;
 import dvm.springbootweb.service.OrderService;
 import dvm.springbootweb.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,36 +29,26 @@ import java.util.Set;
  */
 @CrossOrigin("*")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/v1")
 public class CommentController {
-    @Autowired
-    private CommentService commentService;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private OrderDetailService detailService;
-
-    @Autowired
-    private OrderService orderService;
+    private final CommentService commentService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
+    private final OrderDetailService detailService;
+    private final OrderService orderService;
     private static final Logger LOGGER = LogManager.getLogger(CommentController.class);
     @GetMapping("/comments")
     public ResponseEntity<?> findAll() {
         List<Comment> listComments = commentService.findAll();
         return ResponseEntity.ok(listComments);
     }
-
     @GetMapping("/searchCommentByUser")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> findAllByUserId(@RequestParam int userId) {
         Set<Comment> listComments = commentService.findAllCommentByUserId(userId);
         return new ResponseEntity<>(listComments, HttpStatus.OK);
     }
-
     @GetMapping("/searchCommentByBook/{id}")
     public ResponseEntity<?> findAllByBookId(@PathVariable int id) {
         Set<Comment> listComments = commentService.findAllCommentByBookId(id);
@@ -95,7 +86,6 @@ public class CommentController {
         orderService.update(order);
         return ResponseEntity.ok(new MessageResponse("Comment added successfully"));
     }
-
     /**
      * Add comment for each book in order
      */
@@ -106,7 +96,6 @@ public class CommentController {
         commentService.save(comment);
         return ResponseEntity.ok(new MessageResponse("Content has been updated"));
     }
-
     /**
      * Delete comment
      */

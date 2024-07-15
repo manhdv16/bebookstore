@@ -50,6 +50,10 @@ public class BookServiceImpl implements BookService {
         bookRepository.save(book);
     }
 
+    /**
+     * delete book by id
+     * @param id
+     */
     @Override
     public void delete(Integer id) {
         Book book = bookRepository.findById(id).get();
@@ -59,6 +63,10 @@ public class BookServiceImpl implements BookService {
         }
         bookRepository.deleteById(id);
     }
+
+    /**
+     * validate book
+     */
     @Override
     public String validateBook(String bookName, String author, String description, double price, int categoryId, int quantity) {
         if(bookName == null || bookName.isEmpty()){

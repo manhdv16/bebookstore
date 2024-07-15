@@ -6,7 +6,7 @@ import dvm.springbootweb.entity.User;
 import dvm.springbootweb.repository.BookRepository;
 import dvm.springbootweb.repository.CartRepository;
 import dvm.springbootweb.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,14 +16,10 @@ import java.util.List;
  * @see CartService
  */
 @Service
+@RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
-
-    @Autowired
-    private CartRepository cartRepository;
-
-    @Autowired
-    private BookRepository bookRepository;
-
+    private final CartRepository cartRepository;
+    private final BookRepository bookRepository;
     /**
      * AddToCart method is used to add a book to cart
      * @param cartDto

@@ -21,27 +21,22 @@ public class CommentServiceImpl implements CommentService {
     public List<Comment> findAll() {
         return commentReposirory.findAll();
     }
-
     @Override
     public void save(Comment comment) {
         commentReposirory.save(comment);
     }
-
     @Override
     public void delete(int id) {
         commentReposirory.deleteById(id);
     }
-
     @Override
     public Set<Comment> findAllCommentByUserId(int id) {
         return commentReposirory.findAllByUserId(id);
     }
-
     @Override
     public Set<Comment> findAllCommentByBookId(int id) {
         return commentReposirory.findAllByBookId(id);
     }
-
     @Override
     public Comment findById(int id) {
         return commentReposirory.findCommentByCommentId(id);

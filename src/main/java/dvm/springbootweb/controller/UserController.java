@@ -97,7 +97,6 @@ public class UserController {
         userService.saveOrUpdate(user);
         return ResponseEntity.ok(new MessageResponse("User registered successfully"));
     }
-
     /**
      * View infor
      * @param token
@@ -161,7 +160,6 @@ public class UserController {
             return ResponseEntity.ok(new MessageResponse("change password successfully"));
         }
         return ResponseEntity.badRequest().body(new MessageResponse("oldPassword incorrect"));
-
     }
     /**
      * Forgot password

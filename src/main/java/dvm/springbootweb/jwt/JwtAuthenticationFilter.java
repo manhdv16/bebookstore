@@ -27,7 +27,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailService customUserDetailService;
     private static final Logger LOGGER = LogManager.getLogger(JwtAuthenticationFilter.class);
-
     /**
      * getJwtFromRequest
      * @param request

@@ -18,7 +18,6 @@ public class JwtTokenProvider {
     private String jwtSecret;
     @Value("${dvm.expiration}")
     private int jwtExpiration;
-
     /**
      * generateToken
      * @param userName
@@ -32,7 +31,6 @@ public class JwtTokenProvider {
             .setIssuedAt(new Date())
             .setExpiration(expiration)
             .signWith(SignatureAlgorithm.HS512,jwtSecret).compact();
-
     }
     /**
      * getUserNameFromJwt
@@ -46,7 +44,6 @@ public class JwtTokenProvider {
         }catch (ExpiredJwtException e){
             return null;
         }
-
     }
     /**
      * validateJwtToken

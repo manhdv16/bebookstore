@@ -10,6 +10,9 @@ import dvm.springbootweb.repository.OrderDetailRepository;
 import dvm.springbootweb.service.CartService;
 import dvm.springbootweb.service.OrderService;
 import dvm.springbootweb.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,33 +28,30 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
+@RequiredArgsConstructor
 @RequestMapping("api/v1")
 public class OrderController {
-    @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private OrderDetailRepository detailRepository;
-
-    @Autowired
-    private CartService cartService;
+    private final OrderService orderService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
+    private final OrderDetailRepository detailRepository;
+    private final CartService cartService;
+    private static final Logger LOGGER = LogManager.getLogger(OrderController.class);
 
     @GetMapping("/orders")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> viewOrder(@RequestHeader("Authorization") String token) {
         String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
+        if (userName == null) {
+            LOGGER.error("token is not valid");
+            return ResponseEntity.badRequest().body(new MessageResponse("token is not valid"));
+        }
         User user = userService.findByUserName(userName);
         List<Order> orderList = orderService.getAllOrderByUser(user);
         return ResponseEntity.ok(orderList);
     }
     @GetMapping("/page-order")
-    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<Map<String,Object>> viewPaggingOrder(@RequestParam(required = true) int page){
         int size = 3;
         Pageable pageable = PageRequest.of(page, size);
@@ -61,30 +61,31 @@ public class OrderController {
         data.put("totalPages", pageCurrent.getTotalPages());
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
-
     @GetMapping("/adminOrder")
-    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> viewAdminOrder(@RequestHeader("Authorization") String token) {
         boolean isValid = jwtTokenProvider.validateJwtToken(token.substring(7));
         if(isValid) {
             List<Order> orderList = orderService.findAll();
             return ResponseEntity.ok(orderList);
         }
+        LOGGER.error("token is not valid");
         return ResponseEntity.badRequest().body(new MessageResponse("token is not valid"));
     }
-
     @GetMapping("order/{orderId}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> viewOrderDetail(@PathVariable int orderId, @RequestHeader("Authorization")String token){
-        List<OrderDetail> orDetailList = null;
-        orDetailList = detailRepository.findAllByOrderId(orderId);
+        List<OrderDetail> orDetailList = detailRepository.findAllByOrderId(orderId);
         return ResponseEntity.ok(orDetailList);
     }
     @PostMapping("/addToOrder")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> addToOrder(@RequestBody OrderDto orderDto, @RequestHeader("Authorization") String token) {
-        String token1 = token.substring(7);
-        String userName = jwtTokenProvider.getUserNameFromJwt(token1);
+        String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
+        if (userName == null) {
+            LOGGER.error("token is not valid");
+            return ResponseEntity.badRequest().body(new MessageResponse("token is not valid"));
+        }
         User user = userService.findByUserName(userName);
 //        save order and update sold
         orderService.save(orderDto, user);
@@ -93,7 +94,7 @@ public class OrderController {
         return ResponseEntity.ok(new MessageResponse("order added"));
     }
     @PutMapping("updateOrder/{id}")
-    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> updateStatusOrder(@PathVariable int id, @RequestHeader("Authorization") String token, @RequestParam String status){
         boolean isValid = jwtTokenProvider.validateJwtToken(token.substring(7));
         if(isValid) {
@@ -102,10 +103,11 @@ public class OrderController {
             orderService.update(order);
             return ResponseEntity.ok(new MessageResponse("update order successfully"));
         }
+        LOGGER.error("token is not valid");
         return ResponseEntity.badRequest().body(new MessageResponse("update not successfully"));
     }
     @DeleteMapping("deleteOrder/{id}")
-    @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> delete(@PathVariable int id){
         orderService.deleteOrder(id);
         return ResponseEntity.ok(new MessageResponse("delete order successfully"));

@@ -15,11 +15,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class CustomUserDetailService implements UserDetailsService {
-
     @Autowired
     private UserRepository userRepository;
     private static final Logger LOGGER = LogManager.getLogger(CustomUserDetailService.class);
-
     /**
      * Load User By Username
      * @param username

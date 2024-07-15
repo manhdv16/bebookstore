@@ -35,7 +35,6 @@ import java.util.Set;
 @RequestMapping("api/v1")
 @RequiredArgsConstructor
 public class BookController {
-
     private final BookService bookService;
     private final CategoryService categoryService;
     private final CloudinaryService cloudinaryService;
@@ -117,13 +116,11 @@ public class BookController {
         bookService.saveOrUpdate(book);
         return ResponseEntity.ok(new MessageResponse("Updated successfully!"));
     }
-
     /**
      * delete book
      * @param id
      * @return
      */
-
     @DeleteMapping("/delete-book/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteBookById(@PathVariable int id){
@@ -134,7 +131,6 @@ public class BookController {
             LOGGER.error("Delete failed with id:"+ id );
             return ResponseEntity.badRequest().body(new MessageResponse("Delete failed"));
         }
-
     }
     /**
      * Get book detail

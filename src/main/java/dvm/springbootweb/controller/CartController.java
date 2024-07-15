@@ -7,16 +7,16 @@ import dvm.springbootweb.jwt.JwtTokenProvider;
 import dvm.springbootweb.payload.response.MessageResponse;
 import dvm.springbootweb.service.CartService;
 import dvm.springbootweb.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * Cart Controller
@@ -24,18 +24,12 @@ import java.util.*;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/v1")
+@RequiredArgsConstructor
 public class CartController {
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private CartService cartService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
+    private final CartService cartService;
     private static final Logger LOGGER = LogManager.getLogger(CartController.class);
-
     /**
      * Add to cart
      * @param cartDto
@@ -47,7 +41,6 @@ public class CartController {
     public ResponseEntity<?> addToCart(@RequestBody CartDto cartDto,
                                        @RequestHeader("Authorization") String token) {
         String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
-
         if(userName== null){
             LOGGER.error("Token error with username: null");
             return ResponseEntity.status(400).body(new MessageResponse("Token error"));
@@ -56,7 +49,6 @@ public class CartController {
         Cart cart = cartService.AddToCart(cartDto, user);
         return ResponseEntity.ok(cart);
     }
-
     /**
      * view cart
      * @param token
@@ -73,7 +65,6 @@ public class CartController {
         }
         return ResponseEntity.ok(listCart);
     }
-
     /**
      * delete cart
      * @param bookId

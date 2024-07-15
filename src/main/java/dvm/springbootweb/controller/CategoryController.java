@@ -23,7 +23,6 @@ import java.util.Set;
 @RestController
 @RequestMapping("api/v1")
 public class CategoryController {
-
     @Autowired
     private CategoryService categoryService;
     private static final Logger LOGGER = LogManager.getLogger(CategoryController.class);
@@ -32,7 +31,6 @@ public class CategoryController {
     public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(categoryService.findAll(), HttpStatus.OK);
     }
-
     @GetMapping("/booksOfCategory/{id}")
     public ResponseEntity<?> getAllBooks(@PathVariable int id){
         Set<Book> listBooks = categoryService.getAllBooks(id);
@@ -48,7 +46,6 @@ public class CategoryController {
         categoryService.save(category);
         return ResponseEntity.ok(new MessageResponse("added successfully"));
     }
-
     @PutMapping("/updateCategory/{id}")
     @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> update(@PathVariable int id, @RequestParam( required = false) String categoryName,
@@ -59,7 +56,6 @@ public class CategoryController {
         categoryService.save(category);
         return ResponseEntity.ok(new MessageResponse("updated successfully"));
     }
-
     @DeleteMapping("/deleteCategory/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> delete(@PathVariable int id) {

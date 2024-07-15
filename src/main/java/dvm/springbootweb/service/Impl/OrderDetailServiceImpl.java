@@ -15,8 +15,8 @@ import java.util.List;
 @Service
 public class OrderDetailServiceImpl implements OrderDetailService {
 
-@Autowired
-private OrderDetailRepository detailRepository;
+    @Autowired
+    private OrderDetailRepository detailRepository;
     @Override
     public List<OrderDetail> findAllOrderDetail(int orderId) {
         return detailRepository.findAllByOrderId(orderId);
