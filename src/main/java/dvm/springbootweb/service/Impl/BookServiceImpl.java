@@ -1,9 +1,10 @@
 package dvm.springbootweb.service.Impl;
 
-import dvm.springbootweb.dto.BookDto;
 import dvm.springbootweb.entity.Book;
 import dvm.springbootweb.repository.BookRepository;
 import dvm.springbootweb.service.BookService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,10 +14,16 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * BookServiceImpl class implements BookService interface
+ * This class is used to implement all the methods in BookService interface
+ * This class is used to interact with the database
+ */
 @Service
 public class BookServiceImpl implements BookService {
     @Autowired
     private BookRepository bookRepository;
+    private static final Logger LOGGER = LogManager.getLogger(BookServiceImpl.class);
     @Override
     public List<Book> findBooks(int limit) {
         return  bookRepository.findBooks(PageRequest.of(0,limit));
@@ -45,7 +52,11 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void delete(Integer id) {
-        Book book = bookRepository.findById(id).orElseThrow(()->new RuntimeException("No book has id:"+id));
+        Book book = bookRepository.findById(id).get();
+        if (book == null){
+            LOGGER.error("No book has id:"+id);
+            throw new RuntimeException("No book has id:"+id);
+        }
         bookRepository.deleteById(id);
     }
     @Override

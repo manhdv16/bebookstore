@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * CustomUserDetail
+ */
 @Data
 @AllArgsConstructor
 public class CustomUserDetail implements UserDetails {
@@ -22,6 +25,11 @@ public class CustomUserDetail implements UserDetails {
     private String email;
     private Collection<? extends GrantedAuthority> authorities;
 
+    /**
+     * Map User to CustomUserDetail
+     * @param user
+     * @return
+     */
     public static CustomUserDetail mapUserToUserDetail(User user){
         List<GrantedAuthority> listAuthorities = user.getListRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getRoleName().name()))

@@ -2,7 +2,6 @@ package dvm.springbootweb.service;
 
 import dvm.springbootweb.entity.Book;
 import dvm.springbootweb.entity.Category;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;

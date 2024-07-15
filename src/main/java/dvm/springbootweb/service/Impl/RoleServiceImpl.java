@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+/**
+ * RoleServiceImpl class implements RoleService interface
+ * @see RoleService
+ */
 @Service
 public class RoleServiceImpl implements RoleService {
 

@@ -1,6 +1,5 @@
 package dvm.springbootweb.service;
 
-import dvm.springbootweb.dto.BookDto;
 import dvm.springbootweb.entity.Book;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

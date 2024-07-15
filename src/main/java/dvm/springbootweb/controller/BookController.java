@@ -8,9 +8,9 @@ import dvm.springbootweb.payload.response.MessageResponse;
 import dvm.springbootweb.service.BookService;
 import dvm.springbootweb.service.CategoryService;
 import dvm.springbootweb.service.CommentService;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,23 +27,24 @@ import java.util.Map;
 import java.util.Set;
 
 
+/**
+ * Book Controller
+ */
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/v1")
+@RequiredArgsConstructor
 public class BookController {
 
-    @Autowired
-    private BookService bookService;
-
-    @Autowired
-    private CategoryService categoryService;
-
-    @Autowired
-    private CloudinaryService cloudinaryService;
-
-    @Autowired
-    private CommentService commentService;
+    private final BookService bookService;
+    private final CategoryService categoryService;
+    private final CloudinaryService cloudinaryService;
+    private final CommentService commentService;
     private static final Logger LOGGER = LogManager.getLogger(BookController.class);
+    /**
+     * Get books and categories for homepage
+     * @return
+     */
     @GetMapping("/view-home")
     public ResponseEntity<?> getForHome(){
         List<Book> books = bookService.findBooks(6);
@@ -53,6 +54,10 @@ public class BookController {
         data.put("categories", categories);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
+    /**
+     * Get books for pagging
+     * @return
+     */
     @GetMapping("/pagging")
     public ResponseEntity<?> getPagging(@RequestParam(required = true) int page){
         int sizeDefault = 3;
@@ -64,6 +69,10 @@ public class BookController {
         data.put("totalPages",pageBook.getTotalPages());
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
+    /**
+     * Add book
+     * @return
+     */
     @PostMapping("/add-book")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> addBook(@RequestHeader("Authorization") String token, @RequestParam String bookName, @RequestParam String author,
@@ -88,6 +97,10 @@ public class BookController {
         return ResponseEntity.ok(new MessageResponse("Book was added successfully!"));
     }
 
+    /**
+     * Update book
+     * @param id
+     */
     @PutMapping("/update-book/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
     public ResponseEntity<?> updateBookById(@PathVariable int id, @RequestParam(required = false) String bookName, @RequestParam(required = false) String author,
@@ -105,6 +118,12 @@ public class BookController {
         return ResponseEntity.ok(new MessageResponse("Updated successfully!"));
     }
 
+    /**
+     * delete book
+     * @param id
+     * @return
+     */
+
     @DeleteMapping("/delete-book/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteBookById(@PathVariable int id){
@@ -117,6 +136,11 @@ public class BookController {
         }
 
     }
+    /**
+     * Get book detail
+     * @param id
+     * @return
+     */
     @GetMapping("/book/{id}")
     public ResponseEntity<Map<String, Object>> bookDetail(@PathVariable int id){
         Book book = bookService.findByBookId(id);

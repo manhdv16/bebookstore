@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.cloudinary.Cloudinary;
 
+/**
+ * Cloudinary configuration.
+ */
 @Configuration
 public class CloudinaryConfig {
     @Bean

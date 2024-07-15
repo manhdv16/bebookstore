@@ -5,6 +5,8 @@ import dvm.springbootweb.entity.Book;
 import dvm.springbootweb.entity.Category;
 import dvm.springbootweb.payload.response.MessageResponse;
 import dvm.springbootweb.service.CategoryService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Category Controller
+ */
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/v1")
@@ -21,6 +26,7 @@ public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
+    private static final Logger LOGGER = LogManager.getLogger(CategoryController.class);
 
     @GetMapping("/categories")
     public ResponseEntity<?> getAll() {
@@ -55,13 +61,13 @@ public class CategoryController {
     }
 
     @DeleteMapping("/deleteCategory/{id}")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> delete(@PathVariable int id) {
         if(!categoryService.checkBookExist(id)) {
             categoryService.delete(id);
             return ResponseEntity.ok(new MessageResponse("deleted successfully"));
         }
-        System.out.println("book exist");
+        LOGGER.error("book exist in category with category id: "+id);
         return ResponseEntity.badRequest().body(new MessageResponse("book exist"));
     }
 }

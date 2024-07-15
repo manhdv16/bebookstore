@@ -2,14 +2,15 @@ package dvm.springbootweb.dto;
 
 import dvm.springbootweb.entity.Category;
 import dvm.springbootweb.entity.Comment;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
+/**
+ * Data Transfer Object for Book
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

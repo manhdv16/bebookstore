@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * CategoryServiceImpl class implements CategoryService interface
+ * @see CategoryService
+ */
 @Service
 public class CategoryServiceImpl implements CategoryService {
 

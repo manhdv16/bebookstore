@@ -5,6 +5,9 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * JwtResponse
+ */
 @Setter
 @Getter
 public class JwtResponse {

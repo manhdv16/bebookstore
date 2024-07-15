@@ -7,7 +7,7 @@ import dvm.springbootweb.payload.request.SignupRequest;
 import dvm.springbootweb.repository.UserRepository;
 import dvm.springbootweb.service.RoleService;
 import dvm.springbootweb.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +15,16 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * UserServiceImpl class implements UserService interface
+ * @see UserService
+ */
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private RoleService roleService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
     @Override
     public User findByUserName(String username) {
         return userRepository.findByUserName(username);
@@ -42,6 +44,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsUserByEmail(email);
     }
 
+    /**
+     * signUp method is used to create a new user
+     * @param request
+     * @return User
+     */
     @Override
     public User signUp(SignupRequest request) {
         User user = new User();
@@ -51,6 +58,7 @@ public class UserServiceImpl implements UserService {
         if (request.getPhoneNumber() != null) user.setPhoneNumber(request.getPhoneNumber());
         if (request.getAddress() != null) user.setAddress(request.getAddress());
         user.setCreated(new Date());
+        // Add roles
         Set<String> strRole = request.getListRoles();
         Set<Role> listRoles = new HashSet<>();
         if (strRole == null) {

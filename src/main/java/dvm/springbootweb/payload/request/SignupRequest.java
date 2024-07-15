@@ -7,6 +7,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 import java.util.Set;
 
+/**
+ * SignupRequest class is used to receive data from client when they want to register a new account
+ * It contains userName, password, email, phoneNumber
+ */
 @Getter
 @Setter
 public class SignupRequest {

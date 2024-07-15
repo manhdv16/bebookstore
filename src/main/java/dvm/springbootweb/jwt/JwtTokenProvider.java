@@ -1,10 +1,6 @@
 package dvm.springbootweb.jwt;
 
-import dvm.springbootweb.security.CustomUserDetail;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.*;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+/**
+ * JwtTokenProvider
+ */
 @Component
 public class JwtTokenProvider {
     private static Logger LOGGER = LogManager.getLogger(JwtTokenProvider.class);
@@ -20,6 +19,11 @@ public class JwtTokenProvider {
     @Value("${dvm.expiration}")
     private int jwtExpiration;
 
+    /**
+     * generateToken
+     * @param userName
+     * @return
+     */
     public String generateToken(String userName){
         Date date =new Date();
         Date expiration = new Date(date.getTime()+jwtExpiration);
@@ -30,7 +34,11 @@ public class JwtTokenProvider {
             .signWith(SignatureAlgorithm.HS512,jwtSecret).compact();
 
     }
-
+    /**
+     * getUserNameFromJwt
+     * @param token
+     * @return
+     */
     public String getUserNameFromJwt(String token){
         try {
             Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
@@ -40,6 +48,11 @@ public class JwtTokenProvider {
         }
 
     }
+    /**
+     * validateJwtToken
+     * @param authToken
+     * @return
+     */
     public boolean validateJwtToken(String authToken){
         try{
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);

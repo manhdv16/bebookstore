@@ -7,6 +7,8 @@ import dvm.springbootweb.jwt.JwtTokenProvider;
 import dvm.springbootweb.payload.response.MessageResponse;
 import dvm.springbootweb.service.CartService;
 import dvm.springbootweb.service.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+/**
+ * Cart Controller
+ */
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/v1")
@@ -29,21 +34,36 @@ public class CartController {
 
     @Autowired
     private CartService cartService;
+    private static final Logger LOGGER = LogManager.getLogger(CartController.class);
 
+    /**
+     * Add to cart
+     * @param cartDto
+     * @param token
+     * @return
+     */
     @PostMapping("/addToCart")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> addToCart(@RequestBody CartDto cartDto,
                                        @RequestHeader("Authorization") String token) {
         String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
-        System.out.println(userName);
-        if(userName== null) return ResponseEntity.status(400).body(new MessageResponse("Lỗi token"));
+
+        if(userName== null){
+            LOGGER.error("Token error with username: null");
+            return ResponseEntity.status(400).body(new MessageResponse("Token error"));
+        }
         User user = userService.findByUserName(userName);
         Cart cart = cartService.AddToCart(cartDto, user);
         return ResponseEntity.ok(cart);
     }
 
+    /**
+     * view cart
+     * @param token
+     * @return
+     */
     @GetMapping("/viewCart")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> viewCart(@RequestHeader("Authorization") String token) {
         String token1 = token.substring(7);
         String userName = jwtTokenProvider.getUserNameFromJwt(token1);
@@ -54,10 +74,20 @@ public class CartController {
         return ResponseEntity.ok(listCart);
     }
 
+    /**
+     * delete cart
+     * @param bookId
+     * @param token
+     * @return
+     */
     @DeleteMapping("/deleteCart/{bookId}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> deleteCart(@PathVariable Integer bookId, @RequestHeader("Authorization") String token) {
         String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
+        if (userName == null) {
+            LOGGER.error("Token error with username: null");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Token error"));
+        }
         cartService.deleteCartByBookId(bookId);
         return ResponseEntity.ok(new MessageResponse("Delete Successfully"));
     }

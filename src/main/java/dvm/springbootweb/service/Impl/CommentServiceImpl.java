@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * CommentServiceImpl class implements CommentService interface
+ * @see CommentService
+ */
 @Service
 public class CommentServiceImpl implements CommentService {
     @Autowired

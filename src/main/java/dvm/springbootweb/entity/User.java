@@ -2,11 +2,16 @@ package dvm.springbootweb.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.Set;
 
+/**
+ * Entity for User
+ */
 @Entity
 @Table(name = "user")
 @Data
@@ -28,6 +33,6 @@ public class User {
     @JoinTable(name = "User_Role",joinColumns = @JoinColumn(name = "userId"),
     inverseJoinColumns = @JoinColumn(name = "roleId"))
     private Set<Role> listRoles;
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Order> listOrders;
 }

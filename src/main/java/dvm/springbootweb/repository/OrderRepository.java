@@ -1,6 +1,5 @@
 package dvm.springbootweb.repository;
 
-import dvm.springbootweb.entity.Book;
 import dvm.springbootweb.entity.Order;
 import dvm.springbootweb.entity.User;
 import org.springframework.data.domain.Page;

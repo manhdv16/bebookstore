@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * CartServiceImpl class implements CartService interface
+ * @see CartService
+ */
 @Service
 public class CartServiceImpl implements CartService {
 
@@ -19,6 +23,13 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private BookRepository bookRepository;
+
+    /**
+     * AddToCart method is used to add a book to cart
+     * @param cartDto
+     * @param user
+     * @return Cart
+     */
     @Override
     public Cart AddToCart(CartDto cartDto, User user) {
         Cart cart =null;

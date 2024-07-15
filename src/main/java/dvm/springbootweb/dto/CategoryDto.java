@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Data Transfer Object for Category
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
