@@ -14,7 +14,6 @@ import dvm.springbootweb.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -58,7 +57,7 @@ public class CommentController {
      * Add comment for each book in order
      * @param token
      * @param dto
-     * @return
+     * @return message
      */
     @PostMapping("/addComment")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")

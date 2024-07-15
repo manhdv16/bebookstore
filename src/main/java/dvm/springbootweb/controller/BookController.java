@@ -42,7 +42,7 @@ public class BookController {
     private static final Logger LOGGER = LogManager.getLogger(BookController.class);
     /**
      * Get books and categories for homepage
-     * @return
+     * @return books and categories
      */
     @GetMapping("/view-home")
     public ResponseEntity<?> getForHome(){
@@ -55,7 +55,7 @@ public class BookController {
     }
     /**
      * Get books for pagging
-     * @return
+     * @return books
      */
     @GetMapping("/pagging")
     public ResponseEntity<?> getPagging(@RequestParam(required = true) int page){
@@ -70,7 +70,7 @@ public class BookController {
     }
     /**
      * Add book
-     * @return
+     * @return message
      */
     @PostMapping("/add-book")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -99,6 +99,7 @@ public class BookController {
     /**
      * Update book
      * @param id
+     * return message
      */
     @PutMapping("/update-book/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
@@ -119,7 +120,7 @@ public class BookController {
     /**
      * delete book
      * @param id
-     * @return
+     * @return message
      */
     @DeleteMapping("/delete-book/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -135,7 +136,7 @@ public class BookController {
     /**
      * Get book detail
      * @param id
-     * @return
+     * @return book detail
      */
     @GetMapping("/book/{id}")
     public ResponseEntity<Map<String, Object>> bookDetail(@PathVariable int id){

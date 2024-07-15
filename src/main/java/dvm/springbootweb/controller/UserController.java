@@ -45,7 +45,7 @@ public class UserController {
     /**
      * Login by google
      * @param request
-     * @return
+     * @return jwt
      */
     @PostMapping("/login-by-google")
     public ResponseEntity<?> user(@RequestBody SignupRequest request){
@@ -65,7 +65,7 @@ public class UserController {
     /**
      * Sign in
      * @param request
-     * @return
+     * @return jwt
      */
     @PostMapping("/signin")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest request) {
@@ -81,7 +81,7 @@ public class UserController {
     /**
      * Sign up
      * @param request
-     * @return
+     * @return message
      */
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody SignupRequest request) {
@@ -100,7 +100,7 @@ public class UserController {
     /**
      * View infor
      * @param token
-     * @return
+     * @return user
      */
     @GetMapping("/viewInfor")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
@@ -119,7 +119,7 @@ public class UserController {
      * @param email
      * @param phoneNumber
      * @param address
-     * @return
+     * @return message
      */
     @PutMapping("/updateInfor")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
@@ -142,7 +142,7 @@ public class UserController {
      * @param token
      * @param oldPass
      * @param newPass
-     * @return
+     * @return message
      */
     @PostMapping("/changepassword")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_MANAGER')")
@@ -165,7 +165,7 @@ public class UserController {
      * Forgot password
      * @param username
      * @param email
-     * @return
+     * @return  message
      */
     @PostMapping("/forgot-password")
     public ResponseEntity<?> fogotPass(@RequestParam String username, @RequestParam String email) {
@@ -195,7 +195,7 @@ public class UserController {
      * Verify OTP
      * @param otp
      * @param username
-     * @return
+     * @return message
      */
     @GetMapping("/verify")
     public ResponseEntity<?> verifyOTP(@RequestParam String otp,@RequestParam String username){
@@ -214,7 +214,7 @@ public class UserController {
      * Set new password
      * @param newPass
      * @param username
-     * @return
+     * @return message
      */
     @PutMapping("/setpassword")
     public ResponseEntity<?> setPassword(@RequestParam String newPass, @RequestParam String username){

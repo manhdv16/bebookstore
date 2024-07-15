@@ -13,7 +13,6 @@ import dvm.springbootweb.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +37,11 @@ public class OrderController {
     private final CartService cartService;
     private static final Logger LOGGER = LogManager.getLogger(OrderController.class);
 
+    /**
+     * View order
+     * @param token
+     * @return
+     */
     @GetMapping("/orders")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> viewOrder(@RequestHeader("Authorization") String token) {
@@ -50,6 +54,11 @@ public class OrderController {
         List<Order> orderList = orderService.getAllOrderByUser(user);
         return ResponseEntity.ok(orderList);
     }
+    /**
+     * View pagging order
+     * @param page
+     * @return
+     */
     @GetMapping("/page-order")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<Map<String,Object>> viewPaggingOrder(@RequestParam(required = true) int page){
@@ -61,6 +70,11 @@ public class OrderController {
         data.put("totalPages", pageCurrent.getTotalPages());
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
+    /**
+     * View order for admin
+     * @param token
+     * @return
+     */
     @GetMapping("/adminOrder")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> viewAdminOrder(@RequestHeader("Authorization") String token) {
@@ -72,12 +86,24 @@ public class OrderController {
         LOGGER.error("token is not valid");
         return ResponseEntity.badRequest().body(new MessageResponse("token is not valid"));
     }
+    /**
+     * View order detail
+     * @param orderId
+     * @param token
+     * @return
+     */
     @GetMapping("order/{orderId}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> viewOrderDetail(@PathVariable int orderId, @RequestHeader("Authorization")String token){
         List<OrderDetail> orDetailList = detailRepository.findAllByOrderId(orderId);
         return ResponseEntity.ok(orDetailList);
     }
+    /**
+     * Add to order
+     * @param orderDto
+     * @param token
+     * @return
+     */
     @PostMapping("/addToOrder")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> addToOrder(@RequestBody OrderDto orderDto, @RequestHeader("Authorization") String token) {
@@ -93,6 +119,13 @@ public class OrderController {
         cartService.deleteAllCart(user.getUserId());
         return ResponseEntity.ok(new MessageResponse("order added"));
     }
+    /**
+     * Update order
+     * @param id
+     * @param token
+     * @param status
+     * @return
+     */
     @PutMapping("updateOrder/{id}")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> updateStatusOrder(@PathVariable int id, @RequestHeader("Authorization") String token, @RequestParam String status){
@@ -106,6 +139,11 @@ public class OrderController {
         LOGGER.error("token is not valid");
         return ResponseEntity.badRequest().body(new MessageResponse("update not successfully"));
     }
+    /**
+     * Delete order
+     * @param id
+     * @return
+     */
     @DeleteMapping("deleteOrder/{id}")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> delete(@PathVariable int id){

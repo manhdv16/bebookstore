@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,16 +26,30 @@ public class CategoryController {
     private CategoryService categoryService;
     private static final Logger LOGGER = LogManager.getLogger(CategoryController.class);
 
+    /**
+     * Get all categories
+     * @return categories
+     */
     @GetMapping("/categories")
     public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(categoryService.findAll(), HttpStatus.OK);
     }
+    /**
+     * Get all books of category
+     * @param id
+     * @return books
+     */
     @GetMapping("/booksOfCategory/{id}")
     public ResponseEntity<?> getAllBooks(@PathVariable int id){
         Set<Book> listBooks = categoryService.getAllBooks(id);
         System.out.println(listBooks);
         return ResponseEntity.ok(listBooks);
     }
+    /**
+     * Add category
+     * @param dto
+     * @return message
+     */
     @PostMapping("/addCategory")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> addCategory(@RequestBody CategoryDto dto) {
@@ -46,6 +59,13 @@ public class CategoryController {
         categoryService.save(category);
         return ResponseEntity.ok(new MessageResponse("added successfully"));
     }
+    /**
+     * Update category
+     * @param id
+     * @param categoryName
+     * @param description
+     * @return message
+     */
     @PutMapping("/updateCategory/{id}")
     @PreAuthorize("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> update(@PathVariable int id, @RequestParam( required = false) String categoryName,
@@ -56,6 +76,11 @@ public class CategoryController {
         categoryService.save(category);
         return ResponseEntity.ok(new MessageResponse("updated successfully"));
     }
+    /**
+     * Delete category
+     * @param id
+     * @return message
+     */
     @DeleteMapping("/deleteCategory/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> delete(@PathVariable int id) {

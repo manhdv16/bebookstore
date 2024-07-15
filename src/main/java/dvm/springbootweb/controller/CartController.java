@@ -34,7 +34,7 @@ public class CartController {
      * Add to cart
      * @param cartDto
      * @param token
-     * @return
+     * @return cart
      */
     @PostMapping("/addToCart")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
@@ -52,7 +52,7 @@ public class CartController {
     /**
      * view cart
      * @param token
-     * @return
+     * @return list cart
      */
     @GetMapping("/viewCart")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
@@ -69,7 +69,7 @@ public class CartController {
      * delete cart
      * @param bookId
      * @param token
-     * @return
+     * @return message
      */
     @DeleteMapping("/deleteCart/{bookId}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")

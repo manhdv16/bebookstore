@@ -21,7 +21,7 @@ public class JwtTokenProvider {
     /**
      * generateToken
      * @param userName
-     * @return
+     * @return token
      */
     public String generateToken(String userName){
         Date date =new Date();
@@ -35,7 +35,7 @@ public class JwtTokenProvider {
     /**
      * getUserNameFromJwt
      * @param token
-     * @return
+     * @return userName
      */
     public String getUserNameFromJwt(String token){
         try {
@@ -48,7 +48,7 @@ public class JwtTokenProvider {
     /**
      * validateJwtToken
      * @param authToken
-     * @return
+     * @return boolean
      */
     public boolean validateJwtToken(String authToken){
         try{
