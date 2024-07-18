@@ -5,6 +5,7 @@ import com.dvm.bookstore.entity.Category;
 import com.dvm.bookstore.entity.Book;
 import com.dvm.bookstore.entity.Comment;
 import com.dvm.bookstore.payload.response.MessageResponse;
+import com.dvm.bookstore.payload.response.PageResponse;
 import com.dvm.bookstore.service.BookService;
 import com.dvm.bookstore.service.CategoryService;
 import com.dvm.bookstore.service.CommentService;
@@ -16,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,10 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -66,9 +65,8 @@ public class BookController {
      * @return books
      */
     @GetMapping("/pagging")
-    public ResponseEntity<?> getPagging(@RequestParam(required = true) int page){
-        int sizeDefault = 3;
-        Pageable pageable = PageRequest.of(page,sizeDefault);
+    public ResponseEntity<?> getPagging(@RequestParam int page, @RequestParam(defaultValue = "3", required = false) int size){
+        Pageable pageable = PageRequest.of(page,size);
         Page<Book> pageBook = bookService.getPagging(pageable);
         Map<String, Object> data = new HashMap<>();
         data.put("books", pageBook.getContent());
@@ -76,6 +74,7 @@ public class BookController {
         data.put("totalPages",pageBook.getTotalPages());
         LOGGER.info("Get books for pagging page: "+ page);
         return new ResponseEntity<>(data, HttpStatus.OK);
+
     }
     /**
      * Add book
@@ -163,4 +162,26 @@ public class BookController {
         data.put("listCmt", listCmt);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
+    @Operation(summary = "Get list of books with sort by multiple fields")
+    @GetMapping("/list-with-sort-by-multiple-fields")
+    public ResponseEntity<?> getAllBooksWithSortByMultipleFields(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(required = false) String... sorts) {
+        LOGGER.info("Request get all of books with sort by multiple fields");
+        PageResponse<?> pageResponse =  bookService.getAllBooksWithSortByMultipleField(pageNo, pageSize, sorts);
+        return ResponseEntity.ok(pageResponse);
+    }
+    @Operation(summary = "Get list of books by custom query with searching, pagination and sorting")
+    @GetMapping("/list-book-by-search-paging-and-sorting")
+    public ResponseEntity<?> getAllBooksWithPagingAndSorting(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sort) {
+        LOGGER.info("Request get list of books by custom query with search, pagination and sorting");
+        PageResponse<?> pageResponse =  bookService.getListBookBySearchPagingAndSorting(pageNo, pageSize,search, sort);
+        return ResponseEntity.ok(pageResponse);
+    }
+
 }

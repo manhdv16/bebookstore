@@ -1,6 +1,7 @@
 package com.dvm.bookstore.service;
 
 import com.dvm.bookstore.entity.Book;
+import com.dvm.bookstore.payload.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,4 +16,6 @@ public interface BookService {
     void saveOrUpdate(Book book);
     void delete(Integer id);
     String validateBook(String bookName, String author, String description, double price, int categoryId, int quantity);
+    PageResponse<?> getAllBooksWithSortByMultipleField(int pageNo, int pageSize, String... sorts);
+    PageResponse<?> getListBookBySearchPagingAndSorting(int pageNo,int pageSize,String search,String sort);
 }

@@ -1,16 +1,22 @@
 package com.dvm.bookstore.service.Impl;
 
 import com.dvm.bookstore.entity.Book;
+import com.dvm.bookstore.payload.response.BookDetailResponse;
+import com.dvm.bookstore.payload.response.PageResponse;
 import com.dvm.bookstore.repository.BookRepository;
+import com.dvm.bookstore.repository.BookRepositoryCustom;
 import com.dvm.bookstore.service.BookService;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -20,9 +26,10 @@ import java.util.Set;
  * This class is used to interact with the database
  */
 @Service
+@RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
-    @Autowired
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
+    private final BookRepositoryCustom bookRepositoryCustom;
     private static final Logger LOGGER = LogManager.getLogger(BookServiceImpl.class);
     @Override
     public List<Book> findBooks(int limit) {
@@ -44,6 +51,75 @@ public class BookServiceImpl implements BookService {
         return bookRepository.findAll(pageable);
     }
 
+    /**
+     * get all book by pageNo and pageSize with sort by multiple field
+     * @param pageNo
+     * @param pageSize
+     * @param sorts
+     * @return PageResponse
+     */
+    @Override
+    public PageResponse<?> getAllBooksWithSortByMultipleField(int pageNo, int pageSize, String... sorts) {
+        if(pageNo>0) pageNo--;
+        List<Sort.Order> orders = new ArrayList<>();
+        if(sorts!=null) {
+            for(String sortBy : sorts) {
+                LOGGER.info("sort by: {}", sortBy);
+                // sortBy: "name:asc"
+                String[] sort = sortBy.split(":");
+                if(sort.length>1) {
+                    if(sort[1].equalsIgnoreCase("asc")){
+                        orders.add(new Sort.Order(Sort.Direction.ASC, sort[0]));
+                    } else if (sort[1].equalsIgnoreCase("desc")){
+                        orders.add(new Sort.Order(Sort.Direction.DESC, sort[0]));
+                    }
+                }
+            }
+        }
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(orders));
+        Page<Book> books = bookRepository.findAll(pageable);
+        return convertToPageResponse(books, pageable);
+    }
+
+    /**
+     * get all book f
+     * @param pageNo
+     * @param pageSize
+     * @param search
+     * @param sort
+     * @return
+     */
+    @Override
+    public PageResponse<?> getListBookBySearchPagingAndSorting(int pageNo, int pageSize, String search, String sort) {
+        return bookRepositoryCustom.searchBook(pageNo,pageSize,search,sort);
+    }
+
+    /**
+     * convert Page<Book> to PageResponse
+     * @param books
+     * @param pageable
+     * @return PageResponse
+     */
+    private PageResponse<?> convertToPageResponse(Page<Book> books, Pageable pageable) {
+        List<BookDetailResponse> response = books.stream().map(book -> BookDetailResponse.builder()
+                .id(book.getBookId())
+                .bookName(book.getBookName())
+                .description(book.getDescription())
+                .author(book.getAuthor())
+                .image(book.getImage())
+                .price(book.getPrice())
+                .quantity(book.getQuantity())
+                .sold(book.getSold())
+                .categoryName(book.getCategory().getCategoryName())
+                .build()).toList();
+
+        return PageResponse.builder()
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .totalPages(books.getTotalPages())
+                .items(response)
+                .build();
+    }
 
     @Override
     public void saveOrUpdate(Book book) {
