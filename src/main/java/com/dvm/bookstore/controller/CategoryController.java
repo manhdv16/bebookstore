@@ -1,13 +1,13 @@
 package com.dvm.bookstore.controller;
 
-import com.dvm.bookstore.entity.Category;
 import com.dvm.bookstore.dto.CategoryDto;
 import com.dvm.bookstore.entity.Book;
+import com.dvm.bookstore.entity.Category;
 import com.dvm.bookstore.payload.response.MessageResponse;
 import com.dvm.bookstore.service.CategoryService;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,9 +21,9 @@ import java.util.Set;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/v1")
+@RequiredArgsConstructor
 public class CategoryController {
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
     private static final Logger LOGGER = LogManager.getLogger(CategoryController.class);
 
     /**

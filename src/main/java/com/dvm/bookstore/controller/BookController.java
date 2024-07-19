@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 
 
@@ -183,5 +184,16 @@ public class BookController {
         PageResponse<?> pageResponse =  bookService.getListBookBySearchPagingAndSorting(pageNo, pageSize,search, sort);
         return ResponseEntity.ok(pageResponse);
     }
-
+    @Operation(summary = "Get list book with advance search by criteria")
+    @GetMapping("/advance-search-by-criteria")
+    public ResponseEntity<?> getListBookWithAdvanceSearchByCriteria(
+            @RequestParam(defaultValue = "0", required = false) int pageNo,
+            @RequestParam(defaultValue = "10", required = false) int pageSize,
+            @RequestParam(required = false) LocalDate cmtDate,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "", required = false) String... search) {
+        LOGGER.info("search advance by criteria and paging and sorting");
+        // search="bookName:a, author:d"
+        return ResponseEntity.ok(bookService.getListBookWithAdvanceSearchByCriteria(pageNo,pageSize,cmtDate,sortBy,search));
+    }
 }

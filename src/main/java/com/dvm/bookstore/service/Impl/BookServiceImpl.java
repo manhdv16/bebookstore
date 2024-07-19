@@ -4,18 +4,18 @@ import com.dvm.bookstore.entity.Book;
 import com.dvm.bookstore.payload.response.BookDetailResponse;
 import com.dvm.bookstore.payload.response.PageResponse;
 import com.dvm.bookstore.repository.BookRepository;
-import com.dvm.bookstore.repository.BookRepositoryCustom;
+import com.dvm.bookstore.repository.custom.BookRepositoryCustom;
 import com.dvm.bookstore.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -92,6 +92,19 @@ public class BookServiceImpl implements BookService {
     @Override
     public PageResponse<?> getListBookBySearchPagingAndSorting(int pageNo, int pageSize, String search, String sort) {
         return bookRepositoryCustom.searchBook(pageNo,pageSize,search,sort);
+    }
+
+    /**
+     * advance search to get list book with paging and sorting
+     * @param pageNo
+     * @param pageSize
+     * @param sortBy
+     * @param search
+     * @return pageresponse
+     */
+    @Override
+    public PageResponse<?> getListBookWithAdvanceSearchByCriteria(int pageNo, int pageSize, LocalDate cmtDate, String sortBy, String... search) {
+        return bookRepositoryCustom.searchAdvanceByCriteria(pageNo,pageSize,cmtDate,sortBy,search);
     }
 
     /**
