@@ -1,9 +1,12 @@
 package com.dvm.bookstore.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Set;
 
 /**
  * Entity for Book
@@ -25,7 +28,12 @@ public class Book {
     private double price;
     private int quantity;
     private int sold;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoryId")
     private Category category;
+    // dung cascade all tuc la khi xoa book thi tat ca comment cua book cung bi xoa, hoac cap nhap anything
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY, mappedBy = "book")
+    private Set<Comment> comments;
 }

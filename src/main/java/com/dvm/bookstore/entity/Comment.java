@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 /**
  * Entity for Comment
@@ -18,7 +18,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int commentId;
     private String content;
-    private Date cmtDate;
+    private LocalDate cmtDate;
     private int rating;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "userId")
