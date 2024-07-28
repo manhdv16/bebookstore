@@ -1,12 +1,12 @@
 package com.dvm.bookstore.controller;
 
-import com.dvm.bookstore.dto.CommentDto;
+import com.dvm.bookstore.dto.request.CommentDto;
 import com.dvm.bookstore.entity.Comment;
 import com.dvm.bookstore.entity.Order;
 import com.dvm.bookstore.entity.OrderDetail;
 import com.dvm.bookstore.entity.User;
 import com.dvm.bookstore.jwt.JwtTokenProvider;
-import com.dvm.bookstore.payload.response.MessageResponse;
+import com.dvm.bookstore.dto.response.MessageResponse;
 import com.dvm.bookstore.service.CommentService;
 import com.dvm.bookstore.service.OrderDetailService;
 import com.dvm.bookstore.service.OrderService;
@@ -20,7 +20,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 

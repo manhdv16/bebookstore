@@ -1,10 +1,10 @@
 package com.dvm.bookstore.controller;
 
-import com.dvm.bookstore.dto.CartDto;
+import com.dvm.bookstore.dto.request.CartDto;
 import com.dvm.bookstore.entity.Cart;
 import com.dvm.bookstore.entity.User;
 import com.dvm.bookstore.jwt.JwtTokenProvider;
-import com.dvm.bookstore.payload.response.MessageResponse;
+import com.dvm.bookstore.dto.response.MessageResponse;
 import com.dvm.bookstore.service.CartService;
 import com.dvm.bookstore.service.UserService;
 import lombok.RequiredArgsConstructor;

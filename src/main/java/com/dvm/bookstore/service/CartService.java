@@ -1,6 +1,6 @@
 package com.dvm.bookstore.service;
 
-import com.dvm.bookstore.dto.CartDto;
+import com.dvm.bookstore.dto.request.CartDto;
 import com.dvm.bookstore.entity.Cart;
 import com.dvm.bookstore.entity.User;
 

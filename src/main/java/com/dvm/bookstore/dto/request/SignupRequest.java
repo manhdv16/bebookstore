@@ -1,4 +1,4 @@
-package com.dvm.bookstore.payload.request;
+package com.dvm.bookstore.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

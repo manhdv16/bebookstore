@@ -16,6 +16,7 @@ public class OrderDetail {
     private Integer orderDetailId;
     private int orderId;
     private int quantity;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "bookId")
     private Book book;

@@ -1,8 +1,10 @@
 package com.dvm.bookstore.service.Impl;
 
 import com.dvm.bookstore.entity.Book;
-import com.dvm.bookstore.payload.response.BookDetailResponse;
-import com.dvm.bookstore.payload.response.PageResponse;
+import com.dvm.bookstore.dto.response.BookDetailResponse;
+import com.dvm.bookstore.dto.response.PageResponse;
+import com.dvm.bookstore.exception.AppException;
+import com.dvm.bookstore.exception.ErrorCode;
 import com.dvm.bookstore.repository.BookRepository;
 import com.dvm.bookstore.repository.custom.BookRepositoryCustom;
 import com.dvm.bookstore.service.BookService;
@@ -43,7 +45,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Book findByBookId(Integer id) {
-        return bookRepository.findAllByBookId(id);
+        return bookRepository.findAllByBookId(id).orElseThrow(()-> new AppException(ErrorCode.BOOK_NOT_FOUND));
     }
 
     @Override

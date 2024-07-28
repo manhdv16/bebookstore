@@ -1,11 +1,13 @@
 package com.dvm.bookstore.controller;
 
 import com.dvm.bookstore.cloudinary.CloudinaryService;
-import com.dvm.bookstore.entity.Category;
+import com.dvm.bookstore.dto.response.APIResponse;
+import com.dvm.bookstore.dto.response.CategoryResponse;
+import com.dvm.bookstore.dto.response.MessageResponse;
+import com.dvm.bookstore.dto.response.PageResponse;
 import com.dvm.bookstore.entity.Book;
+import com.dvm.bookstore.entity.Category;
 import com.dvm.bookstore.entity.Comment;
-import com.dvm.bookstore.payload.response.MessageResponse;
-import com.dvm.bookstore.payload.response.PageResponse;
 import com.dvm.bookstore.service.BookService;
 import com.dvm.bookstore.service.CategoryService;
 import com.dvm.bookstore.service.CommentService;
@@ -17,7 +19,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,7 +27,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -54,7 +58,7 @@ public class BookController {
     @GetMapping("/view-home")
     public ResponseEntity<?> getForHome(){
         List<Book> books = bookService.findBooks(6);
-        List<Category> categories = categoryService.findAll();
+        List<CategoryResponse> categories = categoryService.findAll();
         Map<String, Object> data = new HashMap<>();
         data.put("books", books);
         data.put("categories", categories);
@@ -151,18 +155,24 @@ public class BookController {
      * @return book detail
      */
     @GetMapping("/book/{id}")
-    public ResponseEntity<Map<String, Object>> bookDetail(@PathVariable int id){
+    public ResponseEntity<?> bookDetail(@PathVariable int id){
         Book book = bookService.findByBookId(id);
-        if(book == null){
-            LOGGER.error("Book not found with id: "+ id);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        //get all comment by book id
         Set<Comment> listCmt = commentService.findAllCommentByBookId(id);
         Map<String, Object> data = new HashMap<>();
         data.put("book", book);
         data.put("listCmt", listCmt);
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        APIResponse<Map<String,Object>> response = new APIResponse<>(200,"Found book by id successfully", data);
+        return ResponseEntity.ok(response);
     }
+
+    /**
+     * Get list of books with sort by multiple fields
+     * @param pageNo
+     * @param pageSize
+     * @param sorts
+     * @return
+     */
     @Operation(summary = "Get list of books with sort by multiple fields")
     @GetMapping("/list-with-sort-by-multiple-fields")
     public ResponseEntity<?> getAllBooksWithSortByMultipleFields(
@@ -173,6 +183,15 @@ public class BookController {
         PageResponse<?> pageResponse =  bookService.getAllBooksWithSortByMultipleField(pageNo, pageSize, sorts);
         return ResponseEntity.ok(pageResponse);
     }
+
+    /**
+     * Get list of books by custom query with searching, pagination and sorting
+     * @param pageNo
+     * @param pageSize
+     * @param search
+     * @param sort
+     * @return
+     */
     @Operation(summary = "Get list of books by custom query with searching, pagination and sorting")
     @GetMapping("/list-book-by-search-paging-and-sorting")
     public ResponseEntity<?> getAllBooksWithPagingAndSorting(
@@ -184,6 +203,16 @@ public class BookController {
         PageResponse<?> pageResponse =  bookService.getListBookBySearchPagingAndSorting(pageNo, pageSize,search, sort);
         return ResponseEntity.ok(pageResponse);
     }
+
+    /**
+     * Get list book with advance search by criteria
+     * @param pageNo
+     * @param pageSize
+     * @param cmtDate
+     * @param sortBy
+     * @param search
+     * @return list book
+     */
     @Operation(summary = "Get list book with advance search by criteria")
     @GetMapping("/advance-search-by-criteria")
     public ResponseEntity<?> getListBookWithAdvanceSearchByCriteria(

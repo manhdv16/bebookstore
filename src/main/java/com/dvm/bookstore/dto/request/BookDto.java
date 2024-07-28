@@ -1,21 +1,21 @@
-package com.dvm.bookstore.payload.response;
+package com.dvm.bookstore.dto.request;
 
 import com.dvm.bookstore.entity.Category;
 import com.dvm.bookstore.entity.Comment;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.Set;
 
-@Getter
-@Setter
-@Builder
+/**
+ * Data Transfer Object for Book
+ */
+@Data
 @AllArgsConstructor
-public class BookDetailResponse implements Serializable {
-    private int id;
+@NoArgsConstructor
+public class BookDto {
+    private int bookId;
     private String bookName;
     private String description;
     private String author;
@@ -23,5 +23,6 @@ public class BookDetailResponse implements Serializable {
     private double price;
     private int quantity;
     private int sold;
-    private String categoryName;
+    private Category category;
+    private Set<Comment> listComments;
 }

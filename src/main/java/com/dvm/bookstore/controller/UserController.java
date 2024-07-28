@@ -1,12 +1,12 @@
 package com.dvm.bookstore.controller;
 
-import com.dvm.bookstore.payload.request.LoginRequest;
-import com.dvm.bookstore.payload.request.SignupRequest;
+import com.dvm.bookstore.dto.request.LoginRequest;
+import com.dvm.bookstore.dto.request.SignupRequest;
 import com.dvm.bookstore.security.CustomUserDetail;
 import com.dvm.bookstore.entity.User;
 import com.dvm.bookstore.jwt.JwtTokenProvider;
-import com.dvm.bookstore.payload.response.JwtResponse;
-import com.dvm.bookstore.payload.response.MessageResponse;
+import com.dvm.bookstore.dto.response.JwtResponse;
+import com.dvm.bookstore.dto.response.MessageResponse;
 import com.dvm.bookstore.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
