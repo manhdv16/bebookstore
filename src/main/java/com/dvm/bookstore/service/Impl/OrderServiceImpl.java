@@ -1,6 +1,6 @@
 package com.dvm.bookstore.service.Impl;
 
-import com.dvm.bookstore.dto.OrderDto;
+import com.dvm.bookstore.dto.request.OrderDto;
 import com.dvm.bookstore.entity.*;
 import com.dvm.bookstore.repository.OrderDetailRepository;
 import com.dvm.bookstore.repository.OrderRepository;

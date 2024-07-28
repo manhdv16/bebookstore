@@ -1,4 +1,4 @@
-package com.dvm.bookstore.dto;
+package com.dvm.bookstore.dto.request;
 
 import com.dvm.bookstore.entity.Cart;
 import lombok.AllArgsConstructor;

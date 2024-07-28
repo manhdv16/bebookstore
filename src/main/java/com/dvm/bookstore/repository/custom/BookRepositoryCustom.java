@@ -2,7 +2,7 @@ package com.dvm.bookstore.repository.custom;
 
 import com.dvm.bookstore.entity.Book;
 import com.dvm.bookstore.entity.Comment;
-import com.dvm.bookstore.payload.response.PageResponse;
+import com.dvm.bookstore.dto.response.PageResponse;
 import com.dvm.bookstore.repository.BookRepository;
 import com.dvm.bookstore.repository.custom.criteria.BookSearchQueryCriteriaConsumer;
 import com.dvm.bookstore.repository.custom.criteria.SearchCriteria;
@@ -17,7 +17,6 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

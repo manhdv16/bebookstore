@@ -1,6 +1,6 @@
 package com.dvm.bookstore.service;
 
-import com.dvm.bookstore.dto.OrderDto;
+import com.dvm.bookstore.dto.request.OrderDto;
 import com.dvm.bookstore.entity.Order;
 import com.dvm.bookstore.entity.User;
 import org.springframework.data.domain.Page;

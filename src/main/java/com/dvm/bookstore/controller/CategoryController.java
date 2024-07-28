@@ -1,10 +1,12 @@
 package com.dvm.bookstore.controller;
 
-import com.dvm.bookstore.dto.CategoryDto;
+import com.dvm.bookstore.dto.request.CategoryDto;
 import com.dvm.bookstore.entity.Book;
 import com.dvm.bookstore.entity.Category;
-import com.dvm.bookstore.payload.response.MessageResponse;
+import com.dvm.bookstore.dto.response.MessageResponse;
+import com.dvm.bookstore.dto.response.PageResponse;
 import com.dvm.bookstore.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,6 +36,24 @@ public class CategoryController {
     public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(categoryService.findAll(), HttpStatus.OK);
     }
+
+    /**
+     * Get categories with advance search by specifications
+     * @param pageNo
+     * @param pageSize
+     * @param sorts
+     * @param search
+     * @return list categories
+     */
+    @GetMapping("/advance-search-with-specifications")
+    public ResponseEntity<?> advanceSearchWithSpecification(
+            @RequestParam(defaultValue = "0",required = false) int pageNo,
+            @RequestParam(defaultValue = "10",required = false) int pageSize,
+            @RequestParam(required = false) String[] sorts,
+            @RequestParam(required = false) String[] search) {
+        PageResponse<?> categories = categoryService.advanceSearchWithSpecifications(pageNo,pageSize,sorts,search);
+        return ResponseEntity.ok(categories);
+    }
     /**
      * Get all books of category
      * @param id
@@ -50,12 +70,9 @@ public class CategoryController {
      * @return message
      */
     @PostMapping("/addCategory")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> addCategory(@RequestBody CategoryDto dto) {
-        Category category = new Category();
-        category.setCategoryName(dto.getCategoryName());
-        category.setDescription(dto.getDescription());
-        categoryService.save(category);
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<?> addCategory(@Valid @RequestBody CategoryDto dto) {
+        categoryService.addCategory(dto);
         return ResponseEntity.ok(new MessageResponse("added successfully"));
     }
     /**
@@ -67,16 +84,12 @@ public class CategoryController {
      */
     @PutMapping("/updateCategory/{id}")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
-    public ResponseEntity<?> update(@PathVariable int id, @RequestParam( required = false) String categoryName,
+    public ResponseEntity<?> updateCategory(@PathVariable int id, @RequestParam( required = false) String categoryName,
                                     @RequestParam( required = false) String description) {
         Category category = categoryService.findById(id);
-        if (category == null) {
-            LOGGER.error("category not found with id: "+id);
-            return ResponseEntity.badRequest().body(new MessageResponse("category not found"));
-        }
         if (categoryName != null) category.setCategoryName(categoryName);
         if(description != null) category.setDescription(description);
-        categoryService.save(category);
+        categoryService.updateCategory(category);
         return ResponseEntity.ok(new MessageResponse("updated successfully"));
     }
     /**

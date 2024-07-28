@@ -3,7 +3,7 @@ package com.dvm.bookstore.service.Impl;
 import com.dvm.bookstore.entity.ERole;
 import com.dvm.bookstore.entity.Role;
 import com.dvm.bookstore.entity.User;
-import com.dvm.bookstore.payload.request.SignupRequest;
+import com.dvm.bookstore.dto.request.SignupRequest;
 import com.dvm.bookstore.repository.UserRepository;
 import com.dvm.bookstore.service.RoleService;
 import com.dvm.bookstore.service.UserService;

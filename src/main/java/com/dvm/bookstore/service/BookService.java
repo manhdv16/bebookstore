@@ -1,7 +1,7 @@
 package com.dvm.bookstore.service;
 
 import com.dvm.bookstore.entity.Book;
-import com.dvm.bookstore.payload.response.PageResponse;
+import com.dvm.bookstore.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

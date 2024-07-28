@@ -1,7 +1,7 @@
 package com.dvm.bookstore.service;
 
 import com.dvm.bookstore.entity.User;
-import com.dvm.bookstore.payload.request.SignupRequest;
+import com.dvm.bookstore.dto.request.SignupRequest;
 
 public interface UserService {
     User findByUserName(String username);
