@@ -13,7 +13,7 @@ public interface OrderService {
     void save(OrderDto orderDto, User user);
     void update(Order order);
     Order findById(int id);
-    Boolean deleteOrder(int id);
+    void deleteOrder(int id);
     List<Order> findAll();
     Page<Order> getPagging(Pageable pageable);
 }
