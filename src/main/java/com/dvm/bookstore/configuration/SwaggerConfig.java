@@ -1,4 +1,4 @@
-package com.dvm.bookstore.config;
+package com.dvm.bookstore.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

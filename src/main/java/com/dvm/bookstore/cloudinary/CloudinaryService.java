@@ -2,6 +2,8 @@ package com.dvm.bookstore.cloudinary;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.dvm.bookstore.exception.AppException;
+import com.dvm.bookstore.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,9 +29,13 @@ public class CloudinaryService {
      * @return url of the uploaded file
      * @throws IOException
      */
-    public String uploadFile(MultipartFile file) throws IOException{
-        Map uploadResult =cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+    public String uploadFile(MultipartFile file) {
+        try {
+            Map uploadResult = uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            return (String) uploadResult.get("url");
+        } catch (IOException e) {
+            throw new AppException(ErrorCode.URL_NOT_FOUND);
+        }
 
-        return (String) uploadResult.get("url");
     }
 }

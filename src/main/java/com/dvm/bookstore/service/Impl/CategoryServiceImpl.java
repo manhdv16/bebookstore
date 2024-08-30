@@ -1,6 +1,7 @@
 package com.dvm.bookstore.service.Impl;
 
 import com.dvm.bookstore.dto.request.CategoryDto;
+import com.dvm.bookstore.dto.request.CategoryRequest;
 import com.dvm.bookstore.dto.response.CategoryResponse;
 import com.dvm.bookstore.entity.Book;
 import com.dvm.bookstore.entity.Category;
@@ -10,9 +11,12 @@ import com.dvm.bookstore.exception.ErrorCode;
 import com.dvm.bookstore.repository.CategoryRepository;
 import com.dvm.bookstore.service.BookService;
 import com.dvm.bookstore.service.CategoryService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -26,10 +30,12 @@ import java.util.Set;
  */
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 public class CategoryServiceImpl implements CategoryService {
-    private final CategoryRepository categoryRepository;
-    private final BookService bookService;
-    private static final Logger LOGGER = LogManager.getLogger(CategoryServiceImpl.class);
+    CategoryRepository categoryRepository;
+    BookService bookService;
+    ModelMapper modelMapper;
+    static Logger LOGGER = LogManager.getLogger(CategoryServiceImpl.class);
 
     @Override
     public List<Category> findCategories(int limit) {
@@ -63,7 +69,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void updateCategory(Category category) {
+    public void updateCategory(int id, CategoryRequest request) {
+        Category category = categoryRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+        modelMapper.map(request, category);
         categoryRepository.save(category);
     }
 

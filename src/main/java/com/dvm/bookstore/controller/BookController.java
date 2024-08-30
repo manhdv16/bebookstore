@@ -1,18 +1,17 @@
 package com.dvm.bookstore.controller;
 
-import com.dvm.bookstore.cloudinary.CloudinaryService;
+import com.dvm.bookstore.dto.request.BookCreationRequest;
 import com.dvm.bookstore.dto.response.APIResponse;
 import com.dvm.bookstore.dto.response.CategoryResponse;
-import com.dvm.bookstore.dto.response.MessageResponse;
 import com.dvm.bookstore.dto.response.PageResponse;
 import com.dvm.bookstore.entity.Book;
-import com.dvm.bookstore.entity.Category;
 import com.dvm.bookstore.entity.Comment;
 import com.dvm.bookstore.service.BookService;
 import com.dvm.bookstore.service.CategoryService;
 import com.dvm.bookstore.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -42,9 +40,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class BookController {
     private final BookService bookService;
-    private final CategoryService categoryService;
-    private final CloudinaryService cloudinaryService;
     private final CommentService commentService;
+    private final CategoryService categoryService;
     private static final Logger LOGGER = LogManager.getLogger(BookController.class);
     /**
      * Get books and categories for homepage
@@ -56,14 +53,19 @@ public class BookController {
             @ApiResponse(responseCode = "404", description = "Not found")
     })
     @GetMapping("/view-home")
-    public ResponseEntity<?> getForHome(){
+    public APIResponse<?> getDataForHome(){
         List<Book> books = bookService.findBooks(6);
         List<CategoryResponse> categories = categoryService.findAll();
         Map<String, Object> data = new HashMap<>();
         data.put("books", books);
         data.put("categories", categories);
-        LOGGER.info("Get books and categories for homepage");
-        return new ResponseEntity<>(data, HttpStatus.OK);
+
+        return APIResponse.<Map<String, Object>>builder()
+                .code(200)
+                .message("Get books and categories for homepage")
+                .data(data)
+                .build();
+
     }
     /**
      * Get books for pagging
@@ -87,28 +89,12 @@ public class BookController {
      */
     @PostMapping("/add-book")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> addBook(@RequestHeader("Authorization") String token, @RequestParam String bookName, @RequestParam String author,
-                                     @RequestParam String description, @RequestParam(required = false) MultipartFile image,
-                                     @RequestParam double price, @RequestParam int categoryId, @RequestParam int quantity) throws IOException {
-        String message = bookService.validateBook(bookName, author, description, price, categoryId, quantity);
-        if(!"1".equals(message)){
-            LOGGER.error("Add book failed with message: "+ message);
-            return ResponseEntity.badRequest().body(new MessageResponse(message));
-        }
-        Book book = new Book();
-        book.setBookName(bookName);
-        book.setAuthor(author);
-        book.setDescription(description);
-        book.setPrice(price);
-        if(image!= null){
-            book.setImage(cloudinaryService.uploadFile(image));
-        }
-        book.setQuantity(quantity);
-        Category category = categoryService.findById(categoryId);
-        book.setCategory(category);
-        bookService.saveOrUpdate(book);
-        LOGGER.info("Book was added successfully!");
-        return ResponseEntity.ok(new MessageResponse("Book was added successfully!"));
+    public APIResponse<?> addBook(@ModelAttribute @Valid BookCreationRequest request) {
+        bookService.addBook(request);
+        return APIResponse.<String>builder()
+                .code(200)
+                .message("Add book successfully")
+                .build();
     }
 
     /**
@@ -118,20 +104,12 @@ public class BookController {
      */
     @PutMapping("/update-book/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
-    public ResponseEntity<?> updateBookById(@PathVariable int id, @RequestParam(required = false) String bookName, @RequestParam(required = false) String author,
-                                            @RequestParam(required = false) String description, @RequestParam(required = false) MultipartFile image,
-                                            @RequestParam(required = false) Double price, @RequestParam(required = false) Integer categoryId, @RequestParam(required = false) Integer quantity ) throws IOException {
-        Book book = bookService.findByBookId(id);
-        if(bookName!= null) book.setBookName(bookName);
-        if(description!= null) book.setDescription(description);
-        if(image != null) book.setImage(cloudinaryService.uploadFile(image));
-        if(author!= null) book.setAuthor(author);
-        if(price != null) book.setPrice(price);
-        if(categoryId != null) book.setCategory(categoryService.findById(categoryId));
-        if(quantity != null) book.setQuantity(quantity);
-        bookService.saveOrUpdate(book);
-        LOGGER.info("Updated successfully!");
-        return ResponseEntity.ok(new MessageResponse("Updated successfully!"));
+    public APIResponse<?> updateBookById(@PathVariable int id,  BookCreationRequest request) throws IOException {
+        bookService.updateBook(id, request);
+        return APIResponse.<String>builder()
+                .code(200)
+                .message("Update book successfully")
+                .build();
     }
     /**
      * delete book
@@ -140,14 +118,12 @@ public class BookController {
      */
     @DeleteMapping("/delete-book/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> deleteBookById(@PathVariable int id){
-        try{
-            bookService.delete(id);
-            return ResponseEntity.ok(new MessageResponse("Deleted successfully !"));
-        }catch (Exception exception){
-            LOGGER.error("Delete failed with id:"+ id );
-            return ResponseEntity.badRequest().body(new MessageResponse("Delete failed"));
-        }
+    public APIResponse<?> deleteBookById(@PathVariable int id){
+        bookService.delete(id);
+        return APIResponse.<String>builder()
+                .code(200)
+                .message("Delete book successfully")
+                .build();
     }
     /**
      * Get book detail
@@ -155,15 +131,19 @@ public class BookController {
      * @return book detail
      */
     @GetMapping("/book/{id}")
-    public ResponseEntity<?> bookDetail(@PathVariable int id){
+    public APIResponse<?> bookDetail(@PathVariable int id){
         Book book = bookService.findByBookId(id);
-        //get all comment by book id
         Set<Comment> listCmt = commentService.findAllCommentByBookId(id);
+
         Map<String, Object> data = new HashMap<>();
         data.put("book", book);
         data.put("listCmt", listCmt);
-        APIResponse<Map<String,Object>> response = new APIResponse<>(200,"Found book by id successfully", data);
-        return ResponseEntity.ok(response);
+
+        return APIResponse.<Map<String,Object>>builder()
+                .code(200)
+                .message("Found book by id successfully")
+                .data(data)
+                .build();
     }
 
     /**

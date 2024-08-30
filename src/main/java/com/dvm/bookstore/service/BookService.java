@@ -1,5 +1,6 @@
 package com.dvm.bookstore.service;
 
+import com.dvm.bookstore.dto.request.BookCreationRequest;
 import com.dvm.bookstore.entity.Book;
 import com.dvm.bookstore.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
@@ -14,9 +15,9 @@ public interface BookService {
     Set<Book> findAllByCategoryId(int id);
     Book findByBookId(Integer id);
     Page<Book> getPagging(Pageable pageable);
-    void saveOrUpdate(Book book);
+    void updateBook(int bookId, BookCreationRequest request);
+    void addBook(BookCreationRequest request);
     void delete(Integer id);
-    String validateBook(String bookName, String author, String description, double price, int categoryId, int quantity);
     PageResponse<?> getAllBooksWithSortByMultipleField(int pageNo, int pageSize, String... sorts);
     PageResponse<?> getListBookBySearchPagingAndSorting(int pageNo,int pageSize,String search,String sort);
     PageResponse<?> getListBookWithAdvanceSearchByCriteria(int pageNo, int pageSize, LocalDate cmtDate, String sortBy, String... search);

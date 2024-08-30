@@ -1,17 +1,14 @@
 package com.dvm.bookstore.controller;
 
 import com.dvm.bookstore.dto.request.CartDto;
+import com.dvm.bookstore.dto.response.APIResponse;
 import com.dvm.bookstore.entity.Cart;
-import com.dvm.bookstore.entity.User;
 import com.dvm.bookstore.jwt.JwtTokenProvider;
-import com.dvm.bookstore.dto.response.MessageResponse;
 import com.dvm.bookstore.service.CartService;
 import com.dvm.bookstore.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -38,16 +35,14 @@ public class CartController {
      */
     @PostMapping("/addToCart")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
-    public ResponseEntity<?> addToCart(@RequestBody CartDto cartDto,
-                                       @RequestHeader("Authorization") String token) {
+    public APIResponse<?> addToCart(@RequestBody CartDto cartDto,
+                                    @RequestHeader("Authorization") String token) {
         String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
-        if(userName== null){
-            LOGGER.error("Token error with username: null");
-            return ResponseEntity.status(400).body(new MessageResponse("Token error"));
-        }
-        User user = userService.findByUserName(userName);
-        Cart cart = cartService.AddToCart(cartDto, user);
-        return ResponseEntity.ok(cart);
+        Cart cart = cartService.AddToCart(cartDto, userName);
+        return APIResponse.builder()
+                .code(200)
+                .message("Add to cart successfully")
+                .data(cart).build();
     }
     /**
      * view cart
@@ -56,33 +51,32 @@ public class CartController {
      */
     @GetMapping("/viewCart")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
-    public ResponseEntity<?> viewCart(@RequestHeader("Authorization") String token) {
+    public APIResponse<?> viewCart(@RequestHeader("Authorization") String token) {
         String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
-        if (userName == null) {
-            LOGGER.error("Token error with username: null");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Token error"));
-        }
         List<Cart> listCart = cartService.getAllCartByUserName(userName);
         if (ObjectUtils.isEmpty(listCart)) {
-            return ResponseEntity.ok(new MessageResponse("Cart Null"));
+            return APIResponse.builder()
+                    .code(404)
+                    .message("Cart is empty")
+                    .build();
         }
-        return ResponseEntity.ok(listCart);
+        return APIResponse.builder()
+                .code(200)
+                .message("Get all cart successfully")
+                .data(listCart).build();
     }
     /**
      * delete cart
      * @param bookId
-     * @param token
      * @return message
      */
     @DeleteMapping("/deleteCart/{bookId}")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
-    public ResponseEntity<?> deleteCart(@PathVariable Integer bookId, @RequestHeader("Authorization") String token) {
-        String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
-        if (userName == null) {
-            LOGGER.error("Token error with username: null");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Token error"));
-        }
+    public APIResponse<?> deleteCart(@PathVariable Integer bookId) {
         cartService.deleteCartByBookId(bookId);
-        return ResponseEntity.ok(new MessageResponse("Delete Successfully"));
+        return APIResponse.builder()
+                .code(200)
+                .message("Delete cart successfully")
+                .build();
     }
 }

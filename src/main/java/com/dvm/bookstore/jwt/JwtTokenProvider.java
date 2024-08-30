@@ -16,6 +16,7 @@ public class JwtTokenProvider {
     private static Logger LOGGER = LogManager.getLogger(JwtTokenProvider.class);
     @Value("${dvm.secret}")
     private String jwtSecret;
+
     @Value("${dvm.expiration}")
     private int jwtExpiration;
     /**
@@ -39,7 +40,10 @@ public class JwtTokenProvider {
      */
     public String getUserNameFromJwt(String token){
         try {
-            Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
+            Claims claims = Jwts.parser()
+                    .setSigningKey(jwtSecret)
+                    .parseClaimsJws(token)
+                    .getBody();
             return claims.getSubject();
         }catch (ExpiredJwtException e){
             return null;

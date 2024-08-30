@@ -1,22 +1,29 @@
 package com.dvm.bookstore.service.Impl;
 
+import com.dvm.bookstore.cloudinary.CloudinaryService;
+import com.dvm.bookstore.dto.request.BookCreationRequest;
 import com.dvm.bookstore.entity.Book;
 import com.dvm.bookstore.dto.response.BookDetailResponse;
 import com.dvm.bookstore.dto.response.PageResponse;
+import com.dvm.bookstore.entity.Category;
 import com.dvm.bookstore.exception.AppException;
 import com.dvm.bookstore.exception.ErrorCode;
 import com.dvm.bookstore.repository.BookRepository;
 import com.dvm.bookstore.repository.custom.BookRepositoryCustom;
 import com.dvm.bookstore.service.BookService;
+import com.dvm.bookstore.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.modelmapper.Conditions;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +39,10 @@ import java.util.Set;
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookRepositoryCustom bookRepositoryCustom;
+    private final CloudinaryService cloudinaryService;
+    private final CategoryService categoryService;
+    private final ModelMapper modelMapper;
+
     private static final Logger LOGGER = LogManager.getLogger(BookServiceImpl.class);
     @Override
     public List<Book> findBooks(int limit) {
@@ -45,7 +56,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Book findByBookId(Integer id) {
-        return bookRepository.findAllByBookId(id).orElseThrow(()-> new AppException(ErrorCode.BOOK_NOT_FOUND));
+        return bookRepository.findByBookId(id).orElseThrow(()-> new AppException(ErrorCode.BOOK_NOT_FOUND));
     }
 
     @Override
@@ -137,7 +148,33 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void saveOrUpdate(Book book) {
+    public void updateBook(int bookId, BookCreationRequest request) {
+        Book book = bookRepository.findById(bookId).orElseThrow(() -> new AppException(ErrorCode.BOOK_NOT_FOUND));
+        Category category = categoryService.findById(request.getCategoryId());
+        String image = cloudinaryService.uploadFile(request.getImage());
+        modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
+        modelMapper.map(request, book);
+        book.setCategory(category);
+        book.setImage(image);
+        bookRepository.save(book);
+    }
+
+    /**
+     * add book
+     * @param request
+     */
+    @Override
+    public void addBook(BookCreationRequest request) {
+        Book book = Book.builder()
+                .bookName(request.getBookName())
+                .author(request.getAuthor())
+                .description(request.getDescription())
+                .price(request.getPrice())
+                .image(cloudinaryService.uploadFile(request.getImage()))
+                .quantity(request.getQuantity())
+                .category(categoryService.findById(request.getCategoryId()))
+                .sold(0)
+                .build();
         bookRepository.save(book);
     }
 
@@ -147,38 +184,8 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public void delete(Integer id) {
-        Book book = bookRepository.findById(id).get();
-        if (book == null){
-            LOGGER.error("No book has id:"+id);
-            throw new RuntimeException("No book has id:"+id);
-        }
         bookRepository.deleteById(id);
     }
 
-    /**
-     * validate book
-     */
-    @Override
-    public String validateBook(String bookName, String author, String description, double price, int categoryId, int quantity) {
-        if(bookName == null || bookName.isEmpty()){
-            return "Book name is required!";
-        }
-        if(author == null || author.isEmpty()){
-            return "Author is required!";
-        }
-        if(description == null || description.isEmpty()){
-            return "Description is required!";
-        }
-        if(price == 0){
-            return "Price is required!";
-        }
-        if(categoryId == 0){
-            return "Category is required!";
-        }
-        if(quantity == 0){
-            return "Quantity is required!";
-        }
-        return "1";
-    }
 }
 

@@ -11,9 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 @Repository
 public interface BookRepository extends JpaRepository<Book,Integer> {
-    @Query("select b from Book b where b.bookId =?1")
-    Optional<Book> findAllByBookId(Integer id);
-    @Query("select b from Book b where b.category.categoryId =?1")
+    Optional<Book> findByBookId(Integer id);
     Set<Book> findAllByCategoryId(int categoryId);
     @Query("select b from Book b order by b.sold desc")
     List<Book> findBooks(Pageable page);

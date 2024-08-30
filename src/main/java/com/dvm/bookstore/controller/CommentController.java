@@ -11,7 +11,9 @@ import com.dvm.bookstore.service.CommentService;
 import com.dvm.bookstore.service.OrderDetailService;
 import com.dvm.bookstore.service.OrderService;
 import com.dvm.bookstore.service.UserService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -29,14 +31,19 @@ import java.util.Set;
 @CrossOrigin("*")
 @RestController
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @RequestMapping("api/v1")
 public class CommentController {
-    private final CommentService commentService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserService userService;
-    private final OrderDetailService detailService;
-    private final OrderService orderService;
-    private static final Logger LOGGER = LogManager.getLogger(CommentController.class);
+    CommentService commentService;
+    JwtTokenProvider jwtTokenProvider;
+    UserService userService;
+    OrderDetailService detailService;
+    OrderService orderService;
+    static Logger LOGGER = LogManager.getLogger(CommentController.class);
+
+    /**
+     * Get all comments
+     */
     @GetMapping("/comments")
     public ResponseEntity<?> findAll() {
         List<Comment> listComments = commentService.findAll();

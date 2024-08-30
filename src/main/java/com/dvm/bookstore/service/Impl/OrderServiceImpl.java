@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
             detail.setBook(book);
             detail.setQuantity(c.getQuantity());
             detail.setOrderId(order.getOrderId());
-            bookService.saveOrUpdate(book);
+            bookService.(book);
             detailRepository.save(detail);
         }
     }
