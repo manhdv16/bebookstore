@@ -2,6 +2,7 @@ package com.dvm.bookstore.security;
 
 import com.dvm.bookstore.entity.User;
 import com.dvm.bookstore.repository.UserRepository;
+import com.dvm.bookstore.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomUserDetailService implements UserDetailsService {
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
     private static final Logger LOGGER = LogManager.getLogger(CustomUserDetailService.class);
+
     /**
      * Load User By Username
      * @param username
@@ -26,12 +28,12 @@ public class CustomUserDetailService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUserName(username);
+        User user = userService.findByUserName(username);
         if(user == null){
             LOGGER.error("user not found with "+username);
             throw new UsernameNotFoundException("user not found with "+username);
         }else{
-            return CustomUserDetail.mapUserToUserDetail(userRepository.findByUserName(username));
+            return CustomUserDetail.mapUserToUserDetail(userService.findByUserName(username));
         }
     }
 }

@@ -26,7 +26,7 @@ public class BookRepositoryCustom {
 
     @PersistenceContext
     private EntityManager entityManager;
-    private static final String LIKE_FORMAT = "%%%s%%";
+    private static final String LIKE_FORMAT = "%%%s%%"; //  %% %s %% , %%-> %
 
     private static final Logger LOGGER = LogManager.getLogger(BookRepository.class);
 

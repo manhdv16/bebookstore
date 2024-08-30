@@ -9,8 +9,10 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(400, "Not found category"),
     CATEGORY_NAME_INVALID(400, "Category name must be not blank"),
     DESCRIPTION_INVALID(400, "Description must be not blank"),
-    BOOK_NOT_FOUND(400,"Not found book");
-
+    BOOK_NOT_FOUND(400,"Not found book"),
+    PASSWORD_NOT_MATCH(400,"Password not match"),
+    USER_NOT_FOUND(400,"Not found user"),
+    URL_NOT_FOUND(400,"Error uploading file to cloudinary");
 
 
     private final int code;

@@ -1,6 +1,7 @@
 package com.dvm.bookstore.controller;
 
 import com.dvm.bookstore.dto.request.OrderDto;
+import com.dvm.bookstore.dto.response.APIResponse;
 import com.dvm.bookstore.entity.Order;
 import com.dvm.bookstore.entity.OrderDetail;
 import com.dvm.bookstore.entity.User;
@@ -10,7 +11,9 @@ import com.dvm.bookstore.repository.OrderDetailRepository;
 import com.dvm.bookstore.service.CartService;
 import com.dvm.bookstore.service.OrderService;
 import com.dvm.bookstore.service.UserService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
@@ -29,13 +32,14 @@ import java.util.Map;
 @CrossOrigin("*")
 @RequiredArgsConstructor
 @RequestMapping("api/v1")
+@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 public class OrderController {
-    private final OrderService orderService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserService userService;
-    private final OrderDetailRepository detailRepository;
-    private final CartService cartService;
-    private static final Logger LOGGER = LogManager.getLogger(OrderController.class);
+    OrderService orderService;
+    JwtTokenProvider jwtTokenProvider;
+    UserService userService;
+    OrderDetailRepository detailRepository;
+    CartService cartService;
+    static Logger LOGGER = LogManager.getLogger(OrderController.class);
 
     /**
      * View order
@@ -44,15 +48,15 @@ public class OrderController {
      */
     @GetMapping("/orders")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
-    public ResponseEntity<?> viewOrder(@RequestHeader("Authorization") String token) {
+    public APIResponse<?> viewOrder(@RequestHeader("Authorization") String token) {
         String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
-        if (userName == null) {
-            LOGGER.error("token is not valid");
-            return ResponseEntity.badRequest().body(new MessageResponse("token is not valid"));
-        }
         User user = userService.findByUserName(userName);
         List<Order> orderList = orderService.getAllOrderByUser(user);
-        return ResponseEntity.ok(orderList);
+        return APIResponse.builder()
+                .code(200)
+                .message("Get list order successfully")
+                .data(orderList)
+                .build();
     }
     /**
      * View pagging order
@@ -61,14 +65,18 @@ public class OrderController {
      */
     @GetMapping("/page-order")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
-    public ResponseEntity<Map<String,Object>> viewPaggingOrder(@RequestParam(required = true) int page){
+    public APIResponse<Map<String,Object>> viewPaggingOrder(@RequestParam int page){
         int size = 3;
         Pageable pageable = PageRequest.of(page, size);
         Page<Order> pageCurrent = orderService.getPagging(pageable);
         Map<String, Object> data = new HashMap<>();
         data.put("orders", pageCurrent.getContent());
         data.put("totalPages", pageCurrent.getTotalPages());
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        return APIResponse.<Map<String,Object>>builder()
+                .code(200)
+                .message("Get list order successfully")
+                .data(data)
+                .build();
     }
     /**
      * View order for admin
@@ -77,14 +85,20 @@ public class OrderController {
      */
     @GetMapping("/adminOrder")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
-    public ResponseEntity<?> viewAdminOrder(@RequestHeader("Authorization") String token) {
-        boolean isValid = jwtTokenProvider.validateJwtToken(token.substring(7));
-        if(isValid) {
+    public APIResponse<?> viewAdminOrder(@RequestHeader("Authorization") String token) {
+        if(jwtTokenProvider.validateJwtToken(token.substring(7))) {
             List<Order> orderList = orderService.findAll();
-            return ResponseEntity.ok(orderList);
+            return APIResponse.builder()
+                    .code(200)
+                    .message("Get list order successfully")
+                    .data(orderList)
+                    .build();
         }
         LOGGER.error("token is not valid");
-        return ResponseEntity.badRequest().body(new MessageResponse("token is not valid"));
+        return APIResponse.builder()
+                .code(400)
+                .message("token is not valid")
+                .build();
     }
     /**
      * View order detail

@@ -1,18 +1,28 @@
 package com.dvm.bookstore.service.Impl;
 
+import com.dvm.bookstore.dto.request.SignupRequest;
+import com.dvm.bookstore.dto.request.UserRequest;
 import com.dvm.bookstore.entity.ERole;
 import com.dvm.bookstore.entity.Role;
 import com.dvm.bookstore.entity.User;
-import com.dvm.bookstore.dto.request.SignupRequest;
+import com.dvm.bookstore.exception.AppException;
+import com.dvm.bookstore.exception.ErrorCode;
 import com.dvm.bookstore.repository.UserRepository;
+import com.dvm.bookstore.service.PasswordService;
 import com.dvm.bookstore.service.RoleService;
 import com.dvm.bookstore.service.UserService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.modelmapper.ModelMapper;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -21,17 +31,31 @@ import java.util.Set;
  */
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final RoleService roleService;
+    UserRepository userRepository;
+    PasswordEncoder passwordEncoder;
+    RoleService roleService;
+    ModelMapper modelMapper;
+    JavaMailSender mailSender;
+    PasswordService passwordService;
+//    @Value("$(spring.mail.username)")
+    private String fromMail="manhvp0412@gmail.com";
+
     @Override
     public User findByUserName(String username) {
-        return userRepository.findByUserName(username);
+        return userRepository.findByUserName(username).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
     }
     @Override
-    public User saveOrUpdate(User user) {
+    public User update(String username, UserRequest request) {
+        User user = findByUserName(username);
+        modelMapper.map(request, user);
         return userRepository.save(user);
+    }
+
+    @Override
+    public void saveOrUpdate(User user) {
+        userRepository.save(user);
     }
 
     @Override
@@ -81,5 +105,32 @@ public class UserServiceImpl implements UserService {
         }
         user.setListRoles(listRoles);
         return user;
+    }
+
+    @Override
+    public void updatePassword(String username, String oldPass, String newPass) {
+        User user = findByUserName(username);
+        if(passwordEncoder.matches(oldPass, user.getPassword())) {
+            String bcreptNewPass = passwordEncoder.encode(newPass);
+            user.setPassword(bcreptNewPass);
+            userRepository.save(user);
+        } else{
+            throw new AppException(ErrorCode.PASSWORD_NOT_MATCH);
+        }
+    }
+
+    @Override
+    public void sendNewPasswordForUser(String email, User user) {
+        String newPassword = passwordService.generateRandomPassword();
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setFrom(fromMail);
+        simpleMailMessage.setSubject("Your New Password");
+        simpleMailMessage.setText("Your new password is: " + newPassword);
+        simpleMailMessage.setTo(email);
+
+        mailSender.send(simpleMailMessage);
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }
