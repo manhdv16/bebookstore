@@ -26,12 +26,8 @@ public class CommentServiceImpl implements CommentService {
         commentReposirory.save(comment);
     }
     @Override
-    public Boolean delete(int id) {
-        if(commentReposirory.findCommentByCommentId(id) == null){
-            return false;
-        }
+    public void delete(int id) {
         commentReposirory.deleteById(id);
-        return true;
     }
     @Override
     public Set<Comment> findAllCommentByUserId(int id) {

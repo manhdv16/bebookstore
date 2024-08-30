@@ -120,18 +120,17 @@ public class OrderController {
      */
     @PostMapping("/addToOrder")
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_MANAGER', 'ROLE_ADMIN')")
-    public ResponseEntity<?> addToOrder(@RequestBody OrderDto orderDto, @RequestHeader("Authorization") String token) {
+    public APIResponse<?> addToOrder(@RequestBody OrderDto orderDto, @RequestHeader("Authorization") String token) {
         String userName = jwtTokenProvider.getUserNameFromJwt(token.substring(7));
-        if (userName == null) {
-            LOGGER.error("token is not valid");
-            return ResponseEntity.badRequest().body(new MessageResponse("token is not valid"));
-        }
         User user = userService.findByUserName(userName);
 //        save order and update sold
         orderService.save(orderDto, user);
 //        delete cart
         cartService.deleteAllCart(user.getUserId());
-        return ResponseEntity.ok(new MessageResponse("order added"));
+        return APIResponse.builder()
+                .code(200)
+                .message("Add to order successfully")
+                .build();
     }
     /**
      * Update order
@@ -142,16 +141,21 @@ public class OrderController {
      */
     @PutMapping("updateOrder/{id}")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
-    public ResponseEntity<?> updateStatusOrder(@PathVariable int id, @RequestHeader("Authorization") String token, @RequestParam String status){
-        boolean isValid = jwtTokenProvider.validateJwtToken(token.substring(7));
-        if(isValid) {
+    public APIResponse<?> updateStatusOrder(@PathVariable int id, @RequestHeader("Authorization") String token, @RequestParam String status){
+        if(jwtTokenProvider.validateJwtToken(token.substring(7))) {
             Order order = orderService.findById(id);
             order.setStatus(status);
             orderService.update(order);
-            return ResponseEntity.ok(new MessageResponse("update order successfully"));
+            return APIResponse.builder()
+                    .code(200)
+                    .message("update successfully")
+                    .build();
         }
         LOGGER.error("token is not valid");
-        return ResponseEntity.badRequest().body(new MessageResponse("update not successfully"));
+        return APIResponse.builder()
+                .code(400)
+                .message("token is not valid")
+                .build();
     }
     /**
      * Delete order
@@ -161,11 +165,7 @@ public class OrderController {
     @DeleteMapping("deleteOrder/{id}")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_ADMIN')")
     public ResponseEntity<?> delete(@PathVariable int id){
-        boolean isDeleteSuccess = orderService.deleteOrder(id);
-        if (!isDeleteSuccess) {
-            LOGGER.error("Order not found with id: "+id);
-            return ResponseEntity.ok(new MessageResponse("Order not found"));
-        }
+        orderService.deleteOrder(id);
         return ResponseEntity.ok(new MessageResponse("delete order successfully"));
     }
 }

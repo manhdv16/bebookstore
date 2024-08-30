@@ -32,25 +32,29 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public void save(OrderDto orderDto, User user) {
-        Order order = new Order();
-        order.setOrderDate(new Date());
-        order.setUser(user);
-        order.setTotalAmount(orderDto.getTotalCost());
-        order.setTotalBook(orderDto.getListCart().size());
-        order.setImage(orderDto.getListCart().get(0).getBook().getImage());
-        order.setStatus(EStatus.PROCESSING.toString());
-        order.setReviewed(false);
+        Order order = Order.builder()
+                .orderDate(new Date())
+                .user(user)
+                .totalAmount(orderDto.getTotalCost())
+                .totalBook(orderDto.getListCart().size())
+                .image(orderDto.getListCart().get(0).getBook().getImage())
+                .status(EStatus.PROCESSING.toString())
+                .reviewed(false)
+                .build();
+
         orderRepository.save(order);
+
         OrderDetail detail;
         Book book;
         for (Cart c : orderDto.getListCart()) {
-            detail = new OrderDetail();
             book = c.getBook();
             book.setSold(book.getSold() + c.getQuantity());
-            detail.setBook(book);
-            detail.setQuantity(c.getQuantity());
-            detail.setOrderId(order.getOrderId());
-            bookService.(book);
+            detail = OrderDetail.builder()
+                    .book(book)
+                    .quantity(c.getQuantity())
+                    .orderId(order.getOrderId())
+                    .build();
+            bookService.s(book);
             detailRepository.save(detail);
         }
     }
@@ -65,12 +69,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Boolean deleteOrder(int id) {
-        if (orderRepository.findById(id).isEmpty()) {
-            return false;
-        }
+    public void deleteOrder(int id) {
         orderRepository.deleteById(id);
-        return true;
     }
 
     @Override
