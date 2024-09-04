@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -18,7 +19,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Book {
+public class Book implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int bookId;
@@ -30,7 +31,7 @@ public class Book {
     private int quantity;
     private int sold;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoryId")
     private Category category;
     // dung cascade all tuc la khi xoa book thi tat ca comment cua book cung bi xoa, hoac cap nhap anything

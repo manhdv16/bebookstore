@@ -54,7 +54,7 @@ public class OrderServiceImpl implements OrderService {
                     .quantity(c.getQuantity())
                     .orderId(order.getOrderId())
                     .build();
-            bookService.s(book);
+            bookService.save(book);
             detailRepository.save(detail);
         }
     }

@@ -14,7 +14,6 @@ public interface CategoryService {
     List<Category> findCategories(int limit);
     List<CategoryResponse> findAll();
     Category findById(int id);
-    Set<Book> getAllBooks(int id);
     void addCategory(CategoryDto categoryDto);
     void updateCategory(int id, CategoryRequest request);
     void delete(int id);

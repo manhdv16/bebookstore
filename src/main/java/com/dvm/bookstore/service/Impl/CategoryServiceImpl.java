@@ -3,13 +3,11 @@ package com.dvm.bookstore.service.Impl;
 import com.dvm.bookstore.dto.request.CategoryDto;
 import com.dvm.bookstore.dto.request.CategoryRequest;
 import com.dvm.bookstore.dto.response.CategoryResponse;
-import com.dvm.bookstore.entity.Book;
 import com.dvm.bookstore.entity.Category;
 import com.dvm.bookstore.dto.response.PageResponse;
 import com.dvm.bookstore.exception.AppException;
 import com.dvm.bookstore.exception.ErrorCode;
 import com.dvm.bookstore.repository.CategoryRepository;
-import com.dvm.bookstore.service.BookService;
 import com.dvm.bookstore.service.CategoryService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +31,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 public class CategoryServiceImpl implements CategoryService {
     CategoryRepository categoryRepository;
-    BookService bookService;
+//    BookService bookService;
     ModelMapper modelMapper;
     static Logger LOGGER = LogManager.getLogger(CategoryServiceImpl.class);
 
@@ -52,10 +50,6 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
     }
 
-    @Override
-    public Set<Book> getAllBooks(int id) {
-        return bookService.findAllByCategoryId(id);
-    }
 
     @Override
     public void addCategory(CategoryDto dto) {

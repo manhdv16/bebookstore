@@ -6,6 +6,7 @@ import com.dvm.bookstore.dto.response.APIResponse;
 import com.dvm.bookstore.dto.response.MessageResponse;
 import com.dvm.bookstore.dto.response.PageResponse;
 import com.dvm.bookstore.entity.Book;
+import com.dvm.bookstore.service.BookService;
 import com.dvm.bookstore.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
+    private final BookService bookService;
     private static final Logger LOGGER = LogManager.getLogger(CategoryController.class);
 
     /**
@@ -67,7 +69,7 @@ public class CategoryController {
      */
     @GetMapping("/booksOfCategory/{id}")
     public APIResponse<?> getAllBooks(@PathVariable int id){
-        Set<Book> listBooks = categoryService.getAllBooks(id);
+        Set<Book> listBooks = bookService.findAllByCategoryId(id);
         return APIResponse.builder()
                 .code(200)
                 .message("Get all books of category successfully")

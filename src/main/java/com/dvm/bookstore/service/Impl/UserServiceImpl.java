@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +23,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -31,16 +31,16 @@ import java.util.Set;
  */
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserServiceImpl implements UserService {
-    UserRepository userRepository;
-    PasswordEncoder passwordEncoder;
-    RoleService roleService;
-    ModelMapper modelMapper;
-    JavaMailSender mailSender;
-    PasswordService passwordService;
-//    @Value("$(spring.mail.username)")
-    private String fromMail="manhvp0412@gmail.com";
+    final UserRepository userRepository;
+    final PasswordEncoder passwordEncoder;
+    final RoleService roleService;
+    final ModelMapper modelMapper;
+    final JavaMailSender mailSender;
+    final PasswordService passwordService;
+    @Value("${spring.mail.username}")
+    String fromMail;
 
     @Override
     public User findByUserName(String username) {

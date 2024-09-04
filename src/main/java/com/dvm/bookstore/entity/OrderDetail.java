@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
+@Entity
 @Table(name = "ordetail")
 @Builder
 public class OrderDetail {

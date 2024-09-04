@@ -45,8 +45,8 @@ public class BookServiceImpl implements BookService {
 
     private static final Logger LOGGER = LogManager.getLogger(BookServiceImpl.class);
     @Override
-    public List<Book> findBooks(int limit) {
-        return  bookRepository.findBooks(PageRequest.of(0,limit));
+    public List<BookDetailResponse> findBooks(int page, int size) {
+        return  bookRepository.findBooks(PageRequest.of(page,size));
     }
 
     @Override
@@ -60,8 +60,9 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Page<Book> getPagging(Pageable pageable) {
-        return bookRepository.findAll(pageable);
+    public Page<BookDetailResponse> getPagging(Pageable pageable) {
+        return bookRepository.getBookByPaging(pageable);
+
     }
 
     /**
@@ -175,6 +176,11 @@ public class BookServiceImpl implements BookService {
                 .category(categoryService.findById(request.getCategoryId()))
                 .sold(0)
                 .build();
+        bookRepository.save(book);
+    }
+
+    @Override
+    public void save(Book book) {
         bookRepository.save(book);
     }
 

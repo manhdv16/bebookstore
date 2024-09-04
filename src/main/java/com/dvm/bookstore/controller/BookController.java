@@ -2,6 +2,7 @@ package com.dvm.bookstore.controller;
 
 import com.dvm.bookstore.dto.request.BookCreationRequest;
 import com.dvm.bookstore.dto.response.APIResponse;
+import com.dvm.bookstore.dto.response.BookDetailResponse;
 import com.dvm.bookstore.dto.response.CategoryResponse;
 import com.dvm.bookstore.dto.response.PageResponse;
 import com.dvm.bookstore.entity.Book;
@@ -9,26 +10,25 @@ import com.dvm.bookstore.entity.Comment;
 import com.dvm.bookstore.service.BookService;
 import com.dvm.bookstore.service.CategoryService;
 import com.dvm.bookstore.service.CommentService;
+import com.dvm.bookstore.service.RedisService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -38,11 +38,14 @@ import java.util.Set;
 @RestController
 @RequestMapping("api/v1")
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookController {
-    private final BookService bookService;
-    private final CommentService commentService;
-    private final CategoryService categoryService;
-    private static final Logger LOGGER = LogManager.getLogger(BookController.class);
+    BookService bookService;
+    CommentService commentService;
+    CategoryService categoryService;
+    RedisService redisService;
+    static Logger LOGGER = LogManager.getLogger(BookController.class);
+
     /**
      * Get books and categories for homepage
      * @return books and categories
@@ -54,7 +57,13 @@ public class BookController {
     })
     @GetMapping("/view-home")
     public APIResponse<?> getDataForHome(){
-        List<Book> books = bookService.findBooks(6);
+        List<BookDetailResponse> books = new ArrayList<>();
+        books =  redisService.getListBook("home-page");
+        if(books == null || books.isEmpty()) {
+            books = bookService.findBooks(0,6);
+            redisService.setListBook("home-page", books);
+            redisService.set("home-page", books, 60L);
+        }
         List<CategoryResponse> categories = categoryService.findAll();
         Map<String, Object> data = new HashMap<>();
         data.put("books", books);
@@ -65,22 +74,27 @@ public class BookController {
                 .message("Get books and categories for homepage")
                 .data(data)
                 .build();
-
     }
     /**
      * Get books for pagging
      * @return books
      */
     @GetMapping("/pagging")
-    public ResponseEntity<?> getPagging(@RequestParam int page, @RequestParam(defaultValue = "3", required = false) int size){
+    public APIResponse<?> getPagging(@RequestParam(defaultValue = "1") int page,
+                                     @RequestParam(defaultValue = "3") int size) {
+        if(page>0) page -=1;
         Pageable pageable = PageRequest.of(page,size);
-        Page<Book> pageBook = bookService.getPagging(pageable);
+        Page<BookDetailResponse> responsePage = bookService.getPagging(pageable);
         Map<String, Object> data = new HashMap<>();
-        data.put("books", pageBook.getContent());
-        data.put("totalBooks", pageBook.getTotalElements());
-        data.put("totalPages",pageBook.getTotalPages());
+        data.put("books", responsePage.getContent());
+        data.put("totalBooks", responsePage.getTotalElements());
+        data.put("totalPages",responsePage.getTotalPages());
         LOGGER.info("Get books for pagging page: "+ page);
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        return APIResponse.<Map<String, Object>>builder()
+                .code(200)
+                .message("Get books for pagging")
+                .data(data)
+                .build();
 
     }
     /**

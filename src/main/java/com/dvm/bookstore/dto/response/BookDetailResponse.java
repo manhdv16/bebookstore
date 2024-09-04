@@ -2,10 +2,7 @@ package com.dvm.bookstore.dto.response;
 
 import com.dvm.bookstore.entity.Category;
 import com.dvm.bookstore.entity.Comment;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -14,6 +11,7 @@ import java.util.Set;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class BookDetailResponse implements Serializable {
     private int id;
     private String bookName;
