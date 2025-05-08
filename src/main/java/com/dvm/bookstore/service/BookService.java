@@ -21,6 +21,8 @@ public interface BookService {
     void save(Book book);
     void delete(Integer id);
     PageResponse<?> getAllBooksWithSortByMultipleField(int pageNo, int pageSize, String... sorts);
-    PageResponse<?> getListBookBySearchPagingAndSorting(int pageNo,int pageSize,String search,String sort);
-    PageResponse<?> getListBookWithAdvanceSearchByCriteria(int pageNo, int pageSize, LocalDate cmtDate, String sortBy, String... search);
+    PageResponse<?> getListBookBySearchPagingAndSorting
+            (int pageNo,int pageSize,String search,String sort);
+    PageResponse<?> getListBookWithAdvanceSearchByCriteria
+            (int pageNo, int pageSize, LocalDate cmtDate, String sortBy, String... search);
 }

@@ -2,9 +2,9 @@ package com.dvm.bookstore.service.Impl;
 
 import com.dvm.bookstore.cloudinary.CloudinaryService;
 import com.dvm.bookstore.dto.request.BookCreationRequest;
-import com.dvm.bookstore.entity.Book;
 import com.dvm.bookstore.dto.response.BookDetailResponse;
 import com.dvm.bookstore.dto.response.PageResponse;
+import com.dvm.bookstore.entity.Book;
 import com.dvm.bookstore.entity.Category;
 import com.dvm.bookstore.exception.AppException;
 import com.dvm.bookstore.exception.ErrorCode;
@@ -23,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +117,8 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public PageResponse<?> getListBookWithAdvanceSearchByCriteria(int pageNo, int pageSize, LocalDate cmtDate, String sortBy, String... search) {
-        return bookRepositoryCustom.searchAdvanceByCriteria(pageNo,pageSize,cmtDate,sortBy,search);
+//        return bookRepositoryCustom.searchAdvanceByCriteria(pageNo,pageSize,cmtDate,sortBy,search);
+        return null;
     }
 
     /**
