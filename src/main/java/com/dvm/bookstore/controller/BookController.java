@@ -101,9 +101,9 @@ public class BookController {
      * Add book
      * @return message
      */
-    @PostMapping("/add-book")
+    @PostMapping(value = "/add-book", consumes = {"multipart/form-data"})
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public APIResponse<?> addBook(@ModelAttribute @Valid BookCreationRequest request) {
+    public APIResponse<?> addBook(@RequestBody @ModelAttribute @Valid BookCreationRequest request) {
         bookService.addBook(request);
         return APIResponse.<String>builder()
                 .code(200)
