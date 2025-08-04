@@ -30,6 +30,7 @@ public class Book implements Serializable {
     private double price;
     private int quantity;
     private int sold;
+    private int status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoryId")

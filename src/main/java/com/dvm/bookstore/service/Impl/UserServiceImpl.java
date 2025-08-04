@@ -2,15 +2,14 @@ package com.dvm.bookstore.service.Impl;
 
 import com.dvm.bookstore.dto.request.SignupRequest;
 import com.dvm.bookstore.dto.request.UserRequest;
-import com.dvm.bookstore.entity.ERole;
-import com.dvm.bookstore.entity.Role;
-import com.dvm.bookstore.entity.User;
+import com.dvm.bookstore.dto.response.UserResponse;
+import com.dvm.bookstore.entity.*;
 import com.dvm.bookstore.exception.AppException;
 import com.dvm.bookstore.exception.ErrorCode;
 import com.dvm.bookstore.repository.UserRepository;
-import com.dvm.bookstore.service.PasswordService;
-import com.dvm.bookstore.service.RoleService;
-import com.dvm.bookstore.service.UserService;
+import com.dvm.bookstore.service.*;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,7 +22,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * UserServiceImpl class implements UserService interface
@@ -33,12 +34,16 @@ import java.util.Set;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserServiceImpl implements UserService {
+    final EntityManager entityManager;
+
     final UserRepository userRepository;
     final PasswordEncoder passwordEncoder;
     final RoleService roleService;
     final ModelMapper modelMapper;
     final JavaMailSender mailSender;
     final PasswordService passwordService;
+    final OrderService orderService;
+    final CommentService commentService;
     @Value("${spring.mail.username}")
     String fromMail;
 
@@ -132,5 +137,48 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void insertBatchUser() {
+        int batchSize = 100;
+        for(int i =0;i<1000;i++) {
+            User u = User.builder()
+                    .userName("user" + i)
+                    .password(passwordEncoder.encode("123456"))
+                    .email("user" + i + "@gmail.com")
+                    .phoneNumber("0123456789" + i)
+                    .address("Address " + i)
+                    .build();
+            entityManager.persist(u);
+            if (i % batchSize == 0) {
+                entityManager.flush();
+                entityManager.clear();
+            }
+        }
+    }
+
+    @Override
+    public CompletableFuture<UserResponse> getProfile(String username) {
+        User user = findByUserName(username);
+
+        CompletableFuture<List<Order>> ordersFuture = CompletableFuture.supplyAsync(
+                () -> orderService.getAllOrderByUser(user)
+        );
+        CompletableFuture<List<Comment>> commentsFuture = CompletableFuture.supplyAsync(
+                () -> (List<Comment>) commentService.findAllCommentByUserId(user.getUserId())
+        );
+
+        // Combine the results of both futures to create a UserResponse
+        return ordersFuture.thenCombineAsync(commentsFuture, (orders, comments) -> {
+            UserResponse userResponse = UserResponse.builder()
+                    .comments(comments)
+                    .orders(orders)
+                    .username(user.getUserName())
+                    .email(user.getEmail())
+                    .build();
+            return userResponse;
+        });
     }
 }

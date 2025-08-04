@@ -1,8 +1,14 @@
 package com.dvm.bookstore.utils;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDate;
 
+@Slf4j
 public class DataUtils {
 
     // Kiểm tra Long
@@ -94,5 +100,21 @@ public class DataUtils {
 
     public static boolean isValidObject(Object obj) {
         return obj != null;
+    }
+
+    public static String objectToJson(Object obj) {
+        if(obj == null) {
+            return "{}";
+        }
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule()); // muc dich cho LocalDate
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // bỏ qua các thuộc tính không biết
+            objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // chuyển đổi LocalDate sang định dạng chuỗi
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            log.warn("Failed to convert object to JSON: {}", e.getMessage());
+            return "{}";
+        }
     }
 }
