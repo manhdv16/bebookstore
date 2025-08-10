@@ -54,7 +54,7 @@ public class DynamicSchedule implements SchedulingConfigurer {
      * Refresh jobs at a fixed delay, default is 30 seconds.
      * You can override this with the property job.dynamic.refresh.
      */
-    @Scheduled(cron = "*/10 * * * * *")
+//    @Scheduled(cron = "*/10 * * * * *")
     public void refreshJob() throws InterruptedException {
         System.out.println("Refreshing jobs..." + Instant.now());
         Thread.sleep(14000);
