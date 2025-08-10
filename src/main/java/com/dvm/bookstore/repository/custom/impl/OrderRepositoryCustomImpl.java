@@ -51,9 +51,12 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom {
             sqlQuery.append(" and o.totalBook = :totalBook");
             params.put("totalBook", request.getTotalBook());
         }
+        String countQuery ="select count(*) " + sqlQuery.substring(sqlQuery.indexOf("from"));
+        Query countQueryObj = entityManager.createQuery(countQuery);
+        params.forEach(countQueryObj::setParameter);
+        Long totalItems = (Long) countQueryObj.getSingleResult();
 
         Query selectQuery = entityManager.createQuery(sqlQuery.toString());
-
         selectQuery.setFirstResult(pageNo*pageSize);
         selectQuery.setMaxResults(pageSize);
         params.forEach(selectQuery::setParameter);
