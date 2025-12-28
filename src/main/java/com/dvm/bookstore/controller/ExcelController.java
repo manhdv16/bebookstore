@@ -1,6 +1,7 @@
 package com.dvm.bookstore.controller;
 
 import com.dvm.bookstore.service.ExcelExportService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,7 +15,7 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/excel")
+@RequestMapping("/api/v1/")
 public class ExcelController {
 
     private final ExcelExportService excelExportService;
@@ -29,4 +30,11 @@ public class ExcelController {
                  .contentType(MediaType.APPLICATION_OCTET_STREAM)
                  .body(excelFile.readAllBytes());
      }
+
+     @GetMapping("/order-export")
+    public void exportOrders(HttpServletResponse response) throws Exception{
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=orders.xlsx");
+        excelExportService.exportOrders(response);
+    }
 }
